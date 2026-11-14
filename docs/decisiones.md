@@ -68,3 +68,39 @@ licencia). Solo se guarda la lista de identificadores en
 líneas de Mi Transporte que no están en ella; la página muestra un aviso.
 De las 21, solo 5 tienen trazo en el mapa (C05, C104, C117, C138, T09-O).
 Las nuevas no se pueden mostrar hasta tener el GTFS actual.
+
+## 2026-11-14 — estado de los datos, análisis y mapeo
+
+### Página «Estado de los datos» (`public/datos.html`)
+Tabla de fuentes (GTFS 2024, GTFS 2026, tiempo real SETRAN/Ualabee y SITEUR,
+OpenStreetMap, IMEPLAN) con «¿abierto?», «¿al día?» y fecha de consulta, más
+las solicitudes de transparencia. Página estática sin JS propio.
+
+### Análisis (`scripts/analisis.py` → `public/analisis.html`)
+Solo biblioteca estándar; lee los GeoJSON ya generados y `frequencies.txt`.
+- **Cobertura:** malla de 250 m en proyección local equirectangular. Área de
+  estudio = celdas a ≤ 2 km de alguna parada (recorte del área urbana sin
+  depender de un polígono externo); se publica también la cifra con 1 km
+  para mostrar cuánto depende del recorte. «Sin cobertura a pie» = parada más
+  cercana a > 500 m en línea recta. Resultado (GTFS 2024): 49.8 % de las
+  celdas con el recorte de 2 km, 31.1 % con el de 1 km.
+  **Limitación:** es área, no población. Fuente abierta propuesta: INEGI,
+  Censo 2020, «Principales resultados por AGEB y manzana urbana» (descarga sin
+  registro, por estado: Jalisco, CSV y cartografía del Marco Geoestadístico;
+  del orden de decenas de MB comprimido; verificar tamaño y licencia antes de
+  descargar). No se descargó.
+- **Frecuencias:** solo servicio que corre en lunes. Pico = ventana activa a
+  las 08:00 (la menor entre sentidos). Nocturno = salidas después de las 23:00
+  o antes de las 05:00. Son horarios programados; el cumplimiento requiere
+  tiempo real.
+- **Corredores:** trazos de `rutas.geojson` muestreados cada 20 m sobre una
+  malla de 150 m; rutas distintas por celda (los dos sentidos cuentan una).
+  Los pares viales de un sentido reparten las rutas y quedan subcontados.
+- La página no carga `sin_cobertura.geojson` (1.1 MB, puntos): dibuja la malla
+  compacta de `analisis.json` (~380 KB) en canvas. Los GeoJSON quedan para
+  reutilizarlos.
+
+### Guía de mapeo (`docs/mapeo.md`)
+OpenStreetMap es la única vía abierta para las 58 rutas que no están en el
+GTFS 2024. La guía da solo identificadores; prohíbe copiar trazos de Treep,
+Google o Moovit. Coordinación con issues etiquetados `mapeo`.

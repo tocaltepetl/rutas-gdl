@@ -23,6 +23,12 @@ incluido el tiempo real. Ver [decisiones](docs/decisiones.md#propósito-2026-11-
 - Al tocar el mapa: las rutas con alguna parada a menos de 300 m. El punto no
   sale del navegador.
 - Frecuencia aproximada en hora pico, según el GTFS.
+- [Estado de los datos](public/datos.html) (`/datos.html`): qué es abierto, qué
+  está cerrado, qué tan viejo es y qué se ha pedido por transparencia.
+- [Análisis](public/analisis.html) (`/analisis.html`): cobertura a pie (malla
+  de 250 m), frecuencias por ruta y corredores con más rutas encimadas.
+- [Guía de mapeo](docs/mapeo.md) para completar en OpenStreetMap las 58 rutas
+  que faltan en los datos abiertos.
 - Conteo de visitas con Cloudflare Web Analytics (sin cookies ni datos
   personales). Ver la
   [política de privacidad común](https://github.com/tocaltepetl/.github/blob/main/docs/privacidad.md).
@@ -43,6 +49,7 @@ Para regenerar `public/data/`:
 curl -L -o /tmp/gtfs.zip https://files.mobilitydatabase.org/mdb-2366/latest.zip
 unzip -o /tmp/gtfs.zip -d /tmp/gtfs
 python3 -I scripts/gtfs_a_geojson.py /tmp/gtfs public/data datos/lineas-treep-mi-transporte.txt
+python3 -I scripts/analisis.py /tmp/gtfs public/data   # analisis.json y GeoJSON del análisis
 ```
 
 ## Uso local
