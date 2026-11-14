@@ -30,6 +30,22 @@
   footer { padding:10px 16px; font-size:12px; color:var(--mute); border-top:1px solid var(--line); }
   footer a { color:var(--acc); }
   #mapa { min-height:0; }
+  .osm { display:block; font-size:11px; color:var(--mute); font-style:italic; }
+  .chip.osm-chip { background:none !important; color:var(--fg); border:2px dashed currentColor; }
+  #detalle { margin:0 16px 8px; padding:10px 12px; border:1px solid var(--line); border-radius:8px; background:var(--card); font-size:13px; }
+  #detalle[hidden], #reporte[hidden] { display:none; }
+  #detalle b { font-size:14px; }
+  #detalle a { color:var(--acc); }
+  .btn { font:inherit; font-size:13px; padding:6px 11px; border-radius:8px; border:1px solid var(--acc); background:none; color:var(--acc); cursor:pointer; margin-top:6px; }
+  .btn.pri { background:var(--acc); color:#fff; }
+  .btn[disabled] { opacity:.5; cursor:default; }
+  #reporte fieldset { border:0; padding:0; margin:8px 0; }
+  #reporte legend { font-weight:600; padding:0; margin-bottom:4px; }
+  #reporte label { display:block; padding:2px 0; }
+  #reporte textarea { width:100%; font:inherit; font-size:13px; padding:6px; border:1px solid var(--line); border-radius:6px; background:var(--bg); color:var(--fg); }
+  .publica { border-left:4px solid #c77700; padding:6px 8px; background:var(--bg); margin:8px 0; }
+  #previa { white-space:pre-wrap; font:12px/1.35 ui-monospace, monospace; background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:6px; margin:4px 0 0; max-height:160px; overflow:auto; }
+  #verNotas { font-size:12px; color:var(--mute); padding:0 16px 8px; display:block; }
   @media (max-width: 720px) {
     body { grid-template-columns:1fr; grid-template-rows: 55dvh 1fr; }
     #mapa { grid-row:1; } aside { grid-row:2; border-right:0; border-top:1px solid var(--line); }
@@ -44,15 +60,19 @@
   </header>
   <input id="buscar" type="search" placeholder="Ruta, número o destino (p. ej. C01, Tlaquepaque)" aria-label="Buscar ruta">
   <div id="filtros"></div>
+  <label id="verNotas"><input type="checkbox" id="notasChk"> Ver reportes abiertos de la comunidad (notas #rutasgdl en OpenStreetMap)</label>
   <p id="aviso"></p>
+  <section id="detalle" hidden aria-live="polite"></section>
   <ul id="lista"></ul>
   <footer>
     Datos: <a href="https://datos.jalisco.gob.mx/dataset/actualizacion-de-rutas-de-transporte-publico-colectivo-y-masivo-en-la-zona-metropolitana-de">GTFS de SETRAN Jalisco</a> (marzo 2024; puede haber rutas que ya cambiaron).
-    Mapa © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>.
-    <a href="solicitar.html">Pide que publiquen los datos actualizados</a>.
+    Rutas marcadas «Fuente: OpenStreetMap» (línea discontinua) y mapa:
+    © <a href="https://www.openstreetmap.org/copyright">colaboradores de OpenStreetMap, ODbL</a>.
+    <a href="solicitar.html">Pide los datos</a> · <a href="datos.html">Estado de los datos</a> · <a href="analisis.html">Análisis</a>.
     Proyecto cívico no oficial
     (<a class="ver" href="https://github.com/tocaltepetl/rutas-gdl/releases" target="_blank" rel="noopener">dev</a>). <!-- version: se reemplaza al desplegar --> Contamos visitas con Cloudflare Web Analytics, sin cookies ni datos personales
     (<a href="https://github.com/tocaltepetl/.github/blob/main/docs/privacidad.md">cómo cuidamos tu privacidad</a>).
+    Si reportas un cambio en una ruta, se publica como nota pública y anónima en OpenStreetMap, solo con el punto y el texto que tú confirmes.
   </footer>
 </aside>
 <div id="mapa"></div>
@@ -61,20 +81,32 @@
 <script>
 const mapa = L.map('mapa', { preferCanvas: true }).setView([20.67, -103.35], 12);
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19, attribution: '© OpenStreetMap'
+  maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright">colaboradores de OpenStreetMap, ODbL</a>'
 }).addTo(mapa);
+
+// API de notas de OSM: la real en producción; ?osm=dev usa el servidor de pruebas.
+const OSM_DEV = new URLSearchParams(location.search).get('osm') === 'dev';
+const OSM_API = OSM_DEV ? 'https://master.apis.dev.openstreetmap.org' : 'https://api.openstreetmap.org';
+const OSM_WEB = OSM_DEV ? 'https://master.apis.dev.openstreetmap.org' : 'https://www.openstreetmap.org';
+const SITIO = 'https://rutasgdl.tocaltepetl.org/';
 
 const $ = s => document.querySelector(s);
 let rutas = [], paradas = [], capas = new Map(), seleccion = null, filtro = 'Todas', cerca = null, marca = null;
+let reporte = null; // { paso: 'punto' | 'form' | 'enviado', latlng, marca, id, url }
 
 const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const porId = id => rutas.find(r => r.id === id);
 
-Promise.all([fetch('data/rutas.geojson').then(r => r.json()), fetch('data/paradas.geojson').then(r => r.json())])
-.then(([r, p]) => {
+Promise.all([
+  fetch('data/rutas.geojson').then(r => r.json()),
+  fetch('data/paradas.geojson').then(r => r.json()),
+  fetch('data/rutas_osm.geojson').then(r => r.ok ? r.json() : { features: [] }).catch(() => ({ features: [] })),
+]).then(([r, p, o]) => {
   paradas = p.features;
-  // agrupar trazos por ruta
+  // agrupar trazos por ruta (GTFS oficial + OpenStreetMap)
   const porRuta = new Map();
-  for (const f of r.features) {
+  for (const f of [...r.features, ...o.features]) {
     const k = f.properties.id;
     if (!porRuta.has(k)) porRuta.set(k, { ...f.properties, trazos: [] });
     porRuta.get(k).trazos.push(f);
@@ -82,12 +114,12 @@ Promise.all([fetch('data/rutas.geojson').then(r => r.json()), fetch('data/parada
   rutas = [...porRuta.values()].sort((a, b) => a.corto.localeCompare(b.corto, 'es', { numeric: true }));
   for (const ru of rutas) {
     const capa = L.geoJSON(ru.trazos, { style: () => estilo(ru, false) })
-      .on('click', e => { L.DomEvent.stop(e); elegir(ru.id); });
+      .on('click', e => { if (reporte) return; L.DomEvent.stop(e); elegir(ru.id); });
     capa.addTo(mapa); capas.set(ru.id, capa);
-    ru.texto = norm(`${ru.corto} ${ru.nombre} ${ru.agencia} ${ru.trazos.map(t => t.properties.destino).join(' ')}`);
+    ru.texto = norm(`${ru.corto} ${ru.nombre} ${ru.agencia} ${ru.trazos.map(t => t.properties.destino).join(' ')}${ru.fuente === 'osm' ? ' openstreetmap osm' : ''}`);
   }
   const agencias = ['Todas', ...new Set(rutas.map(r => r.agencia))];
-  $('#filtros').innerHTML = agencias.map(a => `<button aria-pressed="${a === filtro}">${a}</button>`).join('');
+  $('#filtros').innerHTML = agencias.map(a => `<button aria-pressed="${a === filtro}">${esc(a)}</button>`).join('');
   $('#filtros').onclick = e => { if (e.target.tagName !== 'BUTTON') return;
     filtro = e.target.textContent;
     for (const b of $('#filtros').children) b.setAttribute('aria-pressed', b.textContent === filtro);
@@ -97,7 +129,8 @@ Promise.all([fetch('data/rutas.geojson').then(r => r.json()), fetch('data/parada
 
 function estilo(ru, activa) {
   const atenuada = seleccion && !activa;
-  return { color: ru.color, weight: activa ? 6 : 2, opacity: atenuada ? 0.08 : (activa ? 0.95 : 0.45) };
+  return { color: ru.color, weight: activa ? 6 : 2, opacity: atenuada ? 0.08 : (activa ? 0.95 : 0.45),
+           dashArray: ru.fuente === 'osm' ? (activa ? '10 8' : '6 6') : null };
 }
 
 function visibles() {
@@ -105,6 +138,9 @@ function visibles() {
   return rutas.filter(r => (filtro === 'Todas' || r.agencia === filtro)
     && (!q || r.texto.includes(q)) && (!cerca || cerca.has(r.corto)));
 }
+
+const marcaOsm = r => r.fuente === 'osm'
+  ? `<span class="osm">Fuente: OpenStreetMap (colaborativo)${r.completa_gtfs ? ', trazo que falta en el GTFS' : ''}</span>` : '';
 
 function pintar() {
   const vis = visibles(), ids = new Set(vis.map(r => r.id));
@@ -120,20 +156,135 @@ function pintar() {
   $('#lista').innerHTML = vis.map(r => {
     const f = r.frec_min ? ` · cada ~${r.frec_min} min en hora pico` : '';
     const rev = r.revisar ? '<small class="rev">⚠ Ya no aparece igual en listas recientes: puede haber cambiado.</small>' : '';
-    return `<li data-id="${r.id}" class="${r.id === seleccion ? 'sel' : ''}">
-      <span class="chip" style="background:${r.color}">${r.corto}</span>
-      <span class="nom">${r.nombre}<small>${r.agencia}${f}</small>${rev}</span></li>`;
+    const osm = r.fuente === 'osm';
+    return `<li data-id="${esc(r.id)}" class="${r.id === seleccion ? 'sel' : ''}">
+      <span class="chip${osm ? ' osm-chip' : ''}" style="${osm ? 'color' : 'background'}:${esc(r.color)}">${esc(r.corto)}</span>
+      <span class="nom">${esc(r.nombre)}<small>${esc(r.agencia)}${f}</small>${rev}${marcaOsm(r)}</span></li>`;
   }).join('');
+  pintarDetalle();
 }
 
+function pintarDetalle() {
+  const d = $('#detalle'), ru = seleccion && porId(seleccion);
+  if (!ru) { d.hidden = true; d.innerHTML = ''; return; }
+  d.hidden = false;
+  if (reporte) return pintarReporte(ru);
+  const fuente = ru.fuente === 'osm'
+    ? `Fuente: OpenStreetMap (colaborativo), relación <a href="https://www.openstreetmap.org/relation/${esc(ru.osm_id)}" target="_blank" rel="noopener">${esc(ru.osm_id)}</a>, editada el ${esc(ru.editado)}. © colaboradores de OpenStreetMap, ODbL.`
+    : 'Fuente: GTFS oficial de SETRAN (marzo 2024).';
+  d.innerHTML = `<b>${esc(ru.corto)}</b> ${esc(ru.nombre)}<br><small>${esc(ru.agencia)} · ${fuente}</small><br>
+    <button class="btn" id="btnReportar">Reportar un cambio en esta ruta</button>`;
+  $('#btnReportar').onclick = () => { reporte = { paso: 'punto' }; mapa.getContainer().style.cursor = 'crosshair'; pintarDetalle(); };
+}
+
+const MOTIVOS = ['Ya no pasa por aquí', 'Pasa por otra calle', 'Parada nueva o quitada', 'La ruta ya no existe', 'Otro'];
+
+function textoNota(ru) {
+  const motivo = document.querySelector('input[name=motivo]:checked')?.value || '(sin motivo)';
+  const com = ($('#comentario')?.value || '').trim();
+  return [
+    'Reporte ciudadano de cambio en una ruta de transporte público (Guadalajara).',
+    `Ruta: ${ru.corto} (id ${ru.id}) — ${ru.nombre}`,
+    `Sistema: ${ru.agencia}. Datos usados: ${ru.fuente === 'osm' ? 'OpenStreetMap' : 'GTFS de SETRAN 2024'}.`,
+    `Motivo: ${motivo}`,
+    com ? `Comentario: ${com}` : null,
+    `Enviado desde ${SITIO}#ruta=${encodeURIComponent(ru.id)} (proyecto cívico no oficial) #rutasgdl`,
+  ].filter(Boolean).join('\n');
+}
+
+function pintarReporte(ru) {
+  const d = $('#detalle');
+  const cancelar = '<button class="btn" id="btnCancelar">Cancelar</button>';
+  if (reporte.paso === 'punto') {
+    d.innerHTML = `<b>Reportar un cambio en ${esc(ru.corto)}</b><br>Toca en el mapa el punto donde está el problema.<br>${cancelar}`;
+  } else if (reporte.paso === 'form') {
+    d.innerHTML = `<b>Reportar un cambio en ${esc(ru.corto)}</b>
+      <div id="reporte">
+        <fieldset><legend>¿Qué pasa?</legend>
+          ${MOTIVOS.map((m, i) => `<label><input type="radio" name="motivo" value="${esc(m)}"${i === 0 ? ' checked' : ''}> ${esc(m)}</label>`).join('')}
+        </fieldset>
+        <label>Comentario (opcional; no pongas datos personales)
+          <textarea id="comentario" rows="3" maxlength="1000"></textarea></label>
+        <div class="publica"><b>Se publicará como nota PÚBLICA y anónima en OpenStreetMap</b>
+          en el punto marcado (<span id="coords"></span>; toca el mapa para moverlo).
+          Cualquiera podrá verla. No se envía tu ubicación ni nada más. Texto exacto:
+          <pre id="previa"></pre></div>
+        <button class="btn pri" id="btnEnviar">Publicar nota en OpenStreetMap${OSM_DEV ? ' (servidor de pruebas)' : ''}</button> ${cancelar}
+        <p id="estadoEnvio" role="status"></p>
+      </div>`;
+    $('#reporte').oninput = () => actualizarPrevia(ru);
+    actualizarPrevia(ru);
+    $('#btnEnviar').onclick = () => enviarNota(ru);
+  } else {
+    d.innerHTML = `<b>Gracias.</b> Tu reporte quedó publicado:
+      <a href="${esc(reporte.url)}" target="_blank" rel="noopener">nota ${esc(reporte.id)} en OpenStreetMap</a>.<br>
+      <button class="btn" id="btnCancelar">Cerrar</button>`;
+  }
+  $('#btnCancelar').onclick = terminarReporte;
+}
+
+function actualizarPrevia(ru) {
+  $('#coords').textContent = `${reporte.latlng.lat.toFixed(5)}, ${reporte.latlng.lng.toFixed(5)}`;
+  $('#previa').textContent = textoNota(ru);
+}
+
+function terminarReporte() {
+  reporte?.marca?.remove();
+  reporte = null; mapa.getContainer().style.cursor = '';
+  pintarDetalle();
+}
+
+async function enviarNota(ru) {
+  const btn = $('#btnEnviar'), st = $('#estadoEnvio');
+  btn.disabled = true; st.textContent = 'Enviando…';
+  const body = new URLSearchParams({
+    lat: reporte.latlng.lat.toFixed(6), lon: reporte.latlng.lng.toFixed(6), text: textoNota(ru) });
+  try {
+    const r = await fetch(`${OSM_API}/api/0.6/notes.json`, { method: 'POST', body });
+    if (!r.ok) throw new Error(`${r.status} ${await r.text()}`);
+    const id = (await r.json()).properties?.id;
+    Object.assign(reporte, { paso: 'enviado', id, url: `${OSM_WEB}/note/${id}` });
+    pintarDetalle();
+    if ($('#notasChk').checked) cargarNotas();
+  } catch (err) {
+    btn.disabled = false;
+    st.textContent = 'No se pudo publicar la nota (' + err.message.slice(0, 120) + '). Intenta más tarde.';
+  }
+}
+
+// Notas abiertas con #rutasgdl en la zona visible (opcional, desactivado al cargar).
+const capaNotas = L.layerGroup();
+async function cargarNotas() {
+  const b = mapa.getBounds();
+  const bbox = [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()].map(n => n.toFixed(4)).join(',');
+  try {
+    const r = await fetch(`${OSM_API}/api/0.6/notes/search.json?q=rutasgdl&closed=0&limit=100&bbox=${bbox}`);
+    const j = await r.json();
+    capaNotas.clearLayers();
+    for (const n of j.features || []) {
+      const [lon, lat] = n.geometry.coordinates;
+      const txt = n.properties.comments?.[0]?.text || '';
+      L.circleMarker([lat, lon], { radius: 6, color: '#c77700', weight: 2, fillOpacity: 0.3 })
+        .bindPopup(`<div style="white-space:pre-wrap;max-width:260px">${esc(txt)}</div>
+          <a href="${OSM_WEB}/note/${esc(n.properties.id)}" target="_blank" rel="noopener">Ver nota ${esc(n.properties.id)} en OpenStreetMap</a>`)
+        .addTo(capaNotas);
+    }
+  } catch { /* sin red o zona muy grande: no se muestran */ }
+}
+$('#notasChk').onchange = e => {
+  if (e.target.checked) { capaNotas.addTo(mapa); cargarNotas(); } else capaNotas.remove();
+};
+mapa.on('moveend', () => { if ($('#notasChk').checked) cargarNotas(); });
+
 function elegir(id) {
+  if (reporte) terminarReporte();
   seleccion = seleccion === id ? null : id;
   pintar();
   if (seleccion) {
     mapa.fitBounds(capas.get(id).getBounds(), { padding: [30, 30] });
-    history.replaceState(null, '', '#ruta=' + encodeURIComponent(id));
+    history.replaceState(null, '', location.pathname + location.search + '#ruta=' + encodeURIComponent(id));
     $(`#lista li[data-id="${CSS.escape(id)}"]`)?.scrollIntoView({ block: 'nearest' });
-  } else history.replaceState(null, '', location.pathname);
+  } else history.replaceState(null, '', location.pathname + location.search);
 }
 
 function leerHash() {
@@ -145,6 +296,16 @@ $('#lista').onclick = e => { const li = e.target.closest('li'); if (li) elegir(l
 $('#buscar').oninput = pintar;
 
 mapa.on('click', e => {
+  if (reporte) {
+    if (reporte.paso === 'enviado') return;
+    reporte.marca?.remove();
+    reporte.latlng = e.latlng;
+    reporte.marca = L.marker(e.latlng, { title: 'Punto del reporte' }).addTo(mapa);
+    mapa.getContainer().style.cursor = '';
+    if (reporte.paso === 'punto') { reporte.paso = 'form'; pintarDetalle(); }
+    else actualizarPrevia(porId(seleccion));
+    return;
+  }
   const p = e.latlng, set = new Set();
   for (const s of paradas) {
     const [lon, lat] = s.geometry.coordinates;
@@ -156,7 +317,9 @@ mapa.on('click', e => {
   pintar();
 });
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { cerca = null; seleccion = null; marca?.remove(); marca = null; pintar(); }
+  if (e.key !== 'Escape') return;
+  if (reporte) { terminarReporte(); return; }
+  cerca = null; seleccion = null; marca?.remove(); marca = null; pintar();
 });
 </script>
 <!-- Cloudflare Web Analytics: visitas sin cookies ni datos personales -->
