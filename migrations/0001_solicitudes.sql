@@ -11,12 +11,3 @@ CREATE TABLE solicitudes (
   actualizado  INTEGER NOT NULL
 );
 CREATE INDEX solicitudes_sujeto ON solicitudes (sujeto, estado);
-
--- Límite de peticiones: llave = SHA-256(sal + día + IP); la IP no se guarda
--- y las llaves de días anteriores se borran.
-CREATE TABLE limites (
-  h   TEXT NOT NULL,
-  dia TEXT NOT NULL,
-  n   INTEGER NOT NULL,
-  PRIMARY KEY (h, dia)
-);

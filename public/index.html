@@ -42,7 +42,6 @@
   #reporte fieldset { border:0; padding:0; margin:8px 0; }
   #reporte legend { font-weight:600; padding:0; margin-bottom:4px; }
   #reporte label { display:block; padding:2px 0; }
-  #reporte textarea { width:100%; font:inherit; font-size:13px; padding:6px; border:1px solid var(--line); border-radius:6px; background:var(--bg); color:var(--fg); }
   .publica { border-left:4px solid #c77700; padding:6px 8px; background:var(--bg); margin:8px 0; }
   #previa { white-space:pre-wrap; font:12px/1.35 ui-monospace, monospace; background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:6px; margin:4px 0 0; max-height:160px; overflow:auto; }
   #verNotas { font-size:12px; color:var(--mute); padding:0 16px 8px; display:block; }
@@ -72,7 +71,7 @@
     Proyecto cívico no oficial
     (<a class="ver" href="https://github.com/tocaltepetl/rutas-gdl/releases" target="_blank" rel="noopener">dev</a>). <!-- version: se reemplaza al desplegar --> Contamos visitas con Cloudflare Web Analytics, sin cookies ni datos personales
     (<a href="https://github.com/tocaltepetl/.github/blob/main/docs/privacidad.md">cómo cuidamos tu privacidad</a>).
-    Si reportas un cambio en una ruta, se publica como nota pública y anónima en OpenStreetMap, solo con el punto y el texto que tú confirmes.
+    Si reportas un cambio en una ruta, se publica como nota pública y anónima en OpenStreetMap, solo con el punto, la ruta y el motivo que elijas (sin texto libre).
   </footer>
 </aside>
 <div id="mapa"></div>
@@ -181,13 +180,11 @@ const MOTIVOS = ['Ya no pasa por aquí', 'Pasa por otra calle', 'Parada nueva o 
 
 function textoNota(ru) {
   const motivo = document.querySelector('input[name=motivo]:checked')?.value || '(sin motivo)';
-  const com = ($('#comentario')?.value || '').trim();
   return [
     'Reporte ciudadano de cambio en una ruta de transporte público (Guadalajara).',
     `Ruta: ${ru.corto} (id ${ru.id}) — ${ru.nombre}`,
     `Sistema: ${ru.agencia}. Datos usados: ${ru.fuente === 'osm' ? 'OpenStreetMap' : 'GTFS de SETRAN 2024'}.`,
     `Motivo: ${motivo}`,
-    com ? `Comentario: ${com}` : null,
     `Enviado desde ${SITIO}#ruta=${encodeURIComponent(ru.id)} (proyecto cívico no oficial) #rutasgdl`,
   ].filter(Boolean).join('\n');
 }
@@ -203,8 +200,8 @@ function pintarReporte(ru) {
         <fieldset><legend>¿Qué pasa?</legend>
           ${MOTIVOS.map((m, i) => `<label><input type="radio" name="motivo" value="${esc(m)}"${i === 0 ? ' checked' : ''}> ${esc(m)}</label>`).join('')}
         </fieldset>
-        <label>Comentario (opcional; no pongas datos personales)
-          <textarea id="comentario" rows="3" maxlength="1000"></textarea></label>
+        <p><small>Solo opciones de la lista, sin texto libre, como en todos los proyectos de tocaltepetl.
+          Si quieres explicar más, comenta la nota en OpenStreetMap con tu cuenta.</small></p>
         <div class="publica"><b>Se publicará como nota PÚBLICA y anónima en OpenStreetMap</b>
           en el punto marcado (<span id="coords"></span>; toca el mapa para moverlo).
           Cualquiera podrá verla. No se envía tu ubicación ni nada más. Texto exacto:

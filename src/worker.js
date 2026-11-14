@@ -4,8 +4,9 @@
 // Registro público y anónimo de solicitudes de transparencia (solicitar.html):
 // - Solo sujeto obligado (lista cerrada), folio de la PNT, fechas y estado.
 //   Nada de nombre, correo ni texto libre.
-// - La IP solo se usa para el límite de peticiones: se guarda su SHA-256 con
-//   el día (y la sal SAL si existe), nunca la IP; los días anteriores se borran.
+// - No se guardan IP, cookies ni identificadores. La IP solo se usa, en
+//   memoria, como llave del límite de peticiones (binding LIMITE de Workers
+//   Rate Limiting), como en camiones-basura-gdl y la política común.
 // Ver docs/decisiones.md («Registro de solicitudes»).
 
 const SUJETOS = { setran: "SETRAN", siteur: "SITEUR" };
@@ -18,7 +19,6 @@ const ESTADOS = {
 };
 const PENDIENTES = ["sin-respuesta", "prorroga"];   // cuentan como «días sin respuesta»
 const FECHA_MIN = "2026-11-01";                      // las solicitudes se redactaron en nov. 2026
-const LIMITE_DIA = 20;                               // escrituras por IP por día
 const TZ_OFFSET_MS = -6 * 3600000;                   // Guadalajara: UTC−6 todo el año
 const DAY_MS = 86400000;
 
@@ -65,19 +65,14 @@ async function leerJson(req) {
   try { const b = JSON.parse(await req.text()); return b && typeof b === "object" ? b : null; } catch { return null; }
 }
 
-// Origen propio (o sin Origin, p. ej. curl) y límite diario por IP.
+// Origen propio (o sin Origin, p. ej. curl) y límite por IP, solo en memoria.
 async function permitido(req, env, url) {
   const origin = req.headers.get("origin");
   if (origin && new URL(origin).host !== url.host) return json({ error: "origen" }, 403);
-  const dia = hoy();
-  const ip = req.headers.get("cf-connecting-ip") || "local";
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`${env.SAL || ""}|${dia}|${ip}`));
-  const h = [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, "0")).join("");
-  const [, r] = await env.DB.batch([
-    env.DB.prepare("DELETE FROM limites WHERE dia <> ?1").bind(dia),
-    env.DB.prepare("INSERT INTO limites (h, dia, n) VALUES (?1, ?2, 1) ON CONFLICT (h, dia) DO UPDATE SET n = n + 1 RETURNING n").bind(h, dia),
-  ]);
-  if (r.results[0].n > LIMITE_DIA) return json({ error: "demasiadas solicitudes hoy; intenta mañana" }, 429);
+  if (env.LIMITE) {
+    const { success } = await env.LIMITE.limit({ key: req.headers.get("cf-connecting-ip") || "?" });
+    if (!success) return json({ error: "demasiadas solicitudes; intenta más tarde" }, 429);
+  }
   return null;
 }
 

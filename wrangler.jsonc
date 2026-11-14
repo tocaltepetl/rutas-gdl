@@ -24,6 +24,18 @@
 			"migrations_dir": "migrations"
 		}
 	],
+	"ratelimits": [
+		// Contra spam en las escrituras de /api/solicitudes: 10 por minuto por IP
+		// (la IP no se guarda; ver docs/decisiones.md).
+		{
+			"name": "LIMITE",
+			"namespace_id": "1002",
+			"simple": {
+				"limit": 10,
+				"period": 60
+			}
+		}
+	],
 	"routes": [
 		{ "pattern": "rutasgdl.tocaltepetl.org", "custom_domain": true }
 	]

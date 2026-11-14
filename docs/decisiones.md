@@ -88,17 +88,17 @@ y después el estado de la respuesta. Un Worker mínimo (`src/worker.js`, solo
   CORS abierto como datos abiertos.
 
 **Privacidad:** no se piden nombre, correo ni texto libre; los folios ya son
-públicos en la PNT. Límite de 20 escrituras por día por IP con una llave
-SHA-256(sal + día + IP) en la tabla `limites`; la IP no se guarda y las llaves
-de días anteriores se borran en cada escritura. La sal es el secreto opcional
-`SAL` (sin él, la llave de una IPv4 se podría revertir por fuerza bruta con
-acceso a la base).
+públicos en la PNT y nunca se ligan con quien los registró. Contra spam, un
+límite de 10 escrituras por minuto por IP con Workers Rate Limiting (binding
+`LIMITE`): la IP solo se usa en memoria y no se guarda, como pide la
+[política común](https://github.com/tocaltepetl/.github/blob/main/docs/privacidad.md).
+(Una primera versión guardaba un hash diario de la IP en D1; se quitó por
+contradecir esa política.)
 
 **Límites conocidos:** cualquiera que conozca un folio puede cambiar su
 estado (no hay cuentas, a propósito); los datos los captura la ciudadanía y
 hay que verificarlos en la PNT. **Pendiente:** crear la base
-(`wrangler d1 create rutas-gdl`), poner su id en `wrangler.jsonc` y definir
-`SAL` con `wrangler secret put SAL`. Las migraciones se aplican en
+(`wrangler d1 create rutas-gdl`) y poner su id en `wrangler.jsonc`. Las migraciones se aplican en
 `release.yml` antes de desplegar.
 
 ## 2026-11-14 — estado de los datos, análisis y mapeo
@@ -145,7 +145,7 @@ issues de GitHub (requiere cuenta), notas de OpenStreetMap.
 **Elegida:** notas de OSM (`POST /api/0.6/notes.json`): anónimas, sin cuenta,
 públicas, y quien mapea en OSM las ve y puede corregir el mapa. La persona
 marca el punto y elige un motivo; antes de enviar se muestra que será una nota
-PÚBLICA y anónima, con el texto exacto (ruta, sistema, motivo, comentario y
+PÚBLICA y anónima, con el texto exacto (ruta, sistema, motivo y
 `#rutasgdl`). Solo se envían ese punto y ese texto, nunca la ubicación del
 dispositivo. Opcionalmente se muestran las notas abiertas con `#rutasgdl` de
 la zona visible (desactivado por defecto: no se consulta a OSM sin que la
@@ -168,3 +168,11 @@ importadas en 2022, tienen paradas pero no las calles del recorrido. Detalle en
 `rutas_osm.geojson` es una base de datos derivada y se publica bajo ODbL
 (atribución visible en el mapa y en el pie). El GTFS no se mezcla en el mismo
 archivo.
+
+## 2026-11-14 — ajustes para cumplir la política de privacidad común
+- Registro de solicitudes: el límite contra spam ya no guarda un hash de la IP
+  en D1; usa Workers Rate Limiting en memoria (ver «Registro de solicitudes»).
+  Se quitó la tabla `limites` y el secreto `SAL`.
+- Reporte de cambios en OSM: se quitó el comentario libre; solo ruta, motivo
+  (lista cerrada) y punto. Quien quiera dar detalle puede comentar la nota en
+  OpenStreetMap con su propia cuenta.
