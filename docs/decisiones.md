@@ -176,3 +176,17 @@ archivo.
 - Reporte de cambios en OSM: se quitó el comentario libre; solo ruta, motivo
   (lista cerrada) y punto. Quien quiera dar detalle puede comentar la nota en
   OpenStreetMap con su propia cuenta.
+
+## 2026-11-14 — identidad visual
+- Familia de tocaltepetl (como camiones-basura-gdl y estado-gob): cerro en
+  contorno con agua y, dentro del arco, el glifo del proyecto: **una ruta en
+  zigzag (terracota) con cuatro paradas (verde)**.
+- Colores: tinta `#1D2420`, papel `#EFE9DC`, agua `#3F86A8`, verde `#2F6B4F`,
+  terracota `#B5532C`. Las páginas usan esa paleta (acento agua `#2C6E8E` en
+  claro, `#6FB3D2` en oscuro). Wordmark «rutas gdl» en Bricolage Grotesque 700
+  (OFL), convertido a trazos: no depende de la fuente.
+- `assets/brand/` es la fuente y no se publica (incluye copia de los logos de
+  tocaltepetl y `og-fuente.svg`); se generan con `scripts/marca.py` (necesita
+  fontTools en un venv y el TTF de Bricolage). A `public/` solo van
+  `favicon.svg` (sin scripts ni referencias externas; se adapta a modo oscuro)
+  y `og.png` (1200×630). Open Graph/Twitter apuntan a `https://rutasgdl.tocaltepetl.org/`.

@@ -1,0 +1,12 @@
+{
+  "name": "Rutas de camiones GDL",
+  "short_name": "Rutas GDL",
+  "description": "Observatorio no oficial de las rutas de transporte público de Guadalajara, con datos abiertos.",
+  "lang": "es-MX",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#faf8f3",
+  "theme_color": "#1d2420",
+  "icons": [{ "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

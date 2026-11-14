@@ -4,11 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Rutas de camiones GDL</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#1d2420">
+<meta property="og:title" content="Rutas de camiones GDL">
+<meta property="og:description" content="Mapa libre y sin anuncios de las rutas de transporte público de Guadalajara, con datos abiertos.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_MX">
+<meta property="og:url" content="https://rutasgdl.tocaltepetl.org/">
+<meta property="og:image" content="https://rutasgdl.tocaltepetl.org/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Logo de rutas gdl: una ruta con paradas dentro de un cerro, sobre agua">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="description" content="Mapa libre y sin anuncios de las rutas de transporte público de la zona metropolitana de Guadalajara, con datos abiertos del Gobierno de Jalisco.">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
-  :root { --bg:#fff; --fg:#1d1d1f; --mute:#666; --line:#ddd; --acc:#0b6bcb; --card:#f6f6f7; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#151517; --fg:#eee; --mute:#aaa; --line:#333; --acc:#5aa6ff; --card:#1f1f22; } }
+  :root { --bg:#faf8f3; --fg:#1d2420; --mute:#5d6660; --line:#ddd6c8; --acc:#2c6e8e; --on-acc:#fff; --card:#efe9dc; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#151a17; --fg:#efe9dc; --mute:#a9b0aa; --line:#2e3631; --acc:#6fb3d2; --on-acc:#10202a; --card:#1d2420; } }
   * { box-sizing:border-box; }
   html, body { margin:0; height:100%; background:var(--bg); color:var(--fg); font:15px/1.4 system-ui, sans-serif; }
   body { display:grid; grid-template-columns: 340px 1fr; height:100dvh; }
@@ -19,7 +33,7 @@
   #buscar { margin:8px 16px; padding:9px 11px; font:inherit; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--fg); }
   #filtros { display:flex; gap:6px; flex-wrap:wrap; padding:0 16px 8px; }
   #filtros button { font:inherit; font-size:12px; padding:3px 9px; border-radius:99px; border:1px solid var(--line); background:none; color:var(--fg); cursor:pointer; }
-  #filtros button[aria-pressed=true] { background:var(--acc); border-color:var(--acc); color:#fff; }
+  #filtros button[aria-pressed=true] { background:var(--acc); border-color:var(--acc); color:var(--on-acc); }
   #aviso { margin:0 16px 8px; font-size:13px; color:var(--mute); }
   #lista { list-style:none; margin:0; padding:0; overflow:auto; flex:1; border-top:1px solid var(--line); }
   #lista li { padding:8px 16px; border-bottom:1px solid var(--line); cursor:pointer; display:flex; gap:10px; align-items:center; }
@@ -37,7 +51,7 @@
   #detalle b { font-size:14px; }
   #detalle a { color:var(--acc); }
   .btn { font:inherit; font-size:13px; padding:6px 11px; border-radius:8px; border:1px solid var(--acc); background:none; color:var(--acc); cursor:pointer; margin-top:6px; }
-  .btn.pri { background:var(--acc); color:#fff; }
+  .btn.pri { background:var(--acc); color:var(--on-acc); }
   .btn[disabled] { opacity:.5; cursor:default; }
   #reporte fieldset { border:0; padding:0; margin:8px 0; }
   #reporte legend { font-weight:600; padding:0; margin-bottom:4px; }
@@ -54,7 +68,7 @@
 <body>
 <aside>
   <header>
-    <h1>Rutas de camiones GDL</h1>
+    <h1><img src="favicon.svg" alt="" width="26" height="26" style="vertical-align:-5px;margin-right:6px">Rutas de camiones GDL</h1>
     <p>Busca una ruta o toca el mapa para ver cuáles pasan cerca.</p>
   </header>
   <input id="buscar" type="search" placeholder="Ruta, número o destino (p. ej. C01, Tlaquepaque)" aria-label="Buscar ruta">

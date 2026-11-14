@@ -4,10 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pide los datos de las rutas</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#1d2420">
+<meta property="og:title" content="Pide los datos de las rutas">
+<meta property="og:description" content="Guía para pedir por transparencia que SETRAN y SITEUR publiquen sus datos de rutas y tiempo real.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_MX">
+<meta property="og:url" content="https://rutasgdl.tocaltepetl.org/solicitar.html">
+<meta property="og:image" content="https://rutasgdl.tocaltepetl.org/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Logo de rutas gdl: una ruta con paradas dentro de un cerro, sobre agua">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="description" content="Guía para pedir por transparencia a SETRAN y SITEUR los datos abiertos de las rutas de transporte público de Guadalajara, y registro público de las solicitudes.">
 <style>
-  :root { --bg:#fff; --fg:#1d1d1f; --mute:#666; --line:#ddd; --acc:#0b6bcb; --card:#f6f6f7; --ok:#1a7f37; --mal:#c62828; --esp:#b25e00; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#151517; --fg:#eee; --mute:#aaa; --line:#333; --acc:#5aa6ff; --card:#1f1f22; --ok:#4cc26a; --mal:#ff7a7a; --esp:#ffb454; } }
+  :root { --bg:#faf8f3; --fg:#1d2420; --mute:#5d6660; --line:#ddd6c8; --acc:#2c6e8e; --on-acc:#fff; --card:#efe9dc; --ok:#1a7f37; --mal:#c62828; --esp:#b25e00; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#151a17; --fg:#efe9dc; --mute:#a9b0aa; --line:#2e3631; --acc:#6fb3d2; --on-acc:#10202a; --card:#1d2420; --ok:#4cc26a; --mal:#ff7a7a; --esp:#ffb454; } }
   * { box-sizing:border-box; }
   html, body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.5 system-ui, sans-serif; }
   main, header, footer { max-width:760px; margin:0 auto; padding:0 16px; }
@@ -21,7 +35,7 @@
   .caja { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin:12px 0; }
   textarea { width:100%; min-height:220px; font:13px/1.45 ui-monospace, monospace; padding:10px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--fg); resize:vertical; }
   button, input, select { font:inherit; }
-  button { padding:7px 14px; border-radius:8px; border:1px solid var(--acc); background:var(--acc); color:#fff; cursor:pointer; }
+  button { padding:7px 14px; border-radius:8px; border:1px solid var(--acc); background:var(--acc); color:var(--on-acc); cursor:pointer; }
   button.sec { background:none; color:var(--acc); }
   input, select { padding:7px 9px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--fg); max-width:100%; }
   form { display:grid; gap:10px; }
@@ -43,7 +57,7 @@
 <body>
 <header>
   <p class="mute"><a href="./">← Mapa de rutas</a></p>
-  <h1>Pide los datos de las rutas</h1>
+  <h1><img src="favicon.svg" alt="" width="26" height="26" style="vertical-align:-5px;margin-right:6px">Pide los datos de las rutas</h1>
   <p>Una guía para pedir, por transparencia, que SETRAN y SITEUR publiquen los datos de las rutas como datos abiertos. Toma unos 10 minutos.</p>
 </header>
 <main>
