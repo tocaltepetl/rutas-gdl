@@ -18,9 +18,7 @@
 		{
 			"binding": "DB",
 			"database_name": "rutas-gdl",
-			// FALTA CREARLA: `npx wrangler d1 create rutas-gdl` y poner aquí su id.
-			// Mientras tanto el despliegue fallará; en local (`wrangler dev --local`) funciona.
-			"database_id": "00000000-0000-0000-0000-000000000000",
+			"database_id": "da2497db-2901-4e55-b636-9cd35e2e1124",
 			"migrations_dir": "migrations"
 		}
 	],

@@ -97,9 +97,9 @@ contradecir esa política.)
 
 **Límites conocidos:** cualquiera que conozca un folio puede cambiar su
 estado (no hay cuentas, a propósito); los datos los captura la ciudadanía y
-hay que verificarlos en la PNT. **Pendiente:** crear la base
-(`wrangler d1 create rutas-gdl`) y poner su id en `wrangler.jsonc`. Las migraciones se aplican en
-`release.yml` antes de desplegar.
+hay que verificarlos en la PNT. La base `rutas-gdl` se creó el 2026-11-14
+(`wrangler d1 create rutas-gdl`; id en `wrangler.jsonc`). Las migraciones se
+aplican en `release.yml` antes de desplegar.
 
 ## 2026-11-14 — estado de los datos, análisis y mapeo
 
