@@ -18,7 +18,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Logo de rutas gdl: una ruta con paradas dentro de un cerro, sobre agua">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="description" content="Cobertura a pie, frecuencias y corredores del transporte público de la zona metropolitana de Guadalajara, calculados con el GTFS abierto de SETRAN (2024).">
+<meta name="description" content="Cobertura a pie, frecuencias y corredores del transporte público de la zona metropolitana de Guadalajara, calculados con el GTFS que publica SETRAN Jalisco.">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
   :root { --bg:#faf8f3; --fg:#1d2420; --mute:#5d6660; --line:#ddd6c8; --acc:#2c6e8e; --on-acc:#fff; --card:#efe9dc; --warn:#b25e00; --warnbg:#fff4e5; }
@@ -55,6 +55,8 @@
   .secciones a { padding:6px 12px; border-radius:8px; border:1px solid var(--acc); background:var(--bg); color:var(--acc); font-weight:600; text-decoration:none; box-shadow:0 1px 0 var(--line); }
   .secciones a:hover, .secciones a:focus-visible { background:var(--acc); color:var(--on-acc); }
   .secciones a[aria-current=page] { background:var(--acc); color:var(--on-acc); font-weight:600; }
+  tr.gdl td { background:var(--warnbg); font-weight:600; }
+  .si { color:var(--acc); font-weight:600; } .no { color:var(--warn); font-weight:600; }
 </style>
 </head>
 <body>
@@ -62,8 +64,8 @@
 <main>
 <h1><img src="favicon.svg" alt="" width="26" height="26" style="vertical-align:-5px;margin-right:6px">Análisis de la red</h1>
 <p class="sub">Qué tan cerca queda el camión, cada cuánto pasa y por dónde se amontonan las rutas, calculado solo con datos abiertos.</p>
-<p class="aviso"><b>Ojo: son datos de marzo de 2024.</b> Es el último GTFS que SETRAN publicó como dato abierto. Desde entonces hay rutas nuevas, divididas o
-con otro horario, así que las cifras describen la red de 2024, no la de hoy. <a href="datos.html">Por qué</a>.</p>
+<p class="aviso"><b>Datos:</b> el GTFS que SETRAN publica desde septiembre de 2026 (a través de Ualabee), con horarios programados.
+Aún no tiene licencia abierta explícita ni tiempo real público. <a href="datos.html">Qué falta</a>.</p>
 
 <div class="cifras" id="cifras"></div>
 
@@ -110,8 +112,18 @@ el cuadro queda <b>sin cobertura a pie</b>. También contamos cuántas rutas dis
 que van en par (ida por una, regreso por otra), las rutas se reparten y el conteo queda más bajo.</p>
 <div class="tabla"><table id="t-cor"></table></div>
 
+<h2 id="otras-ciudades">Otras ciudades sí publican</h2>
+<p>Feeds GTFS que aparecen en el catálogo de Mobility Database para áreas metropolitanas de Latinoamérica. «Vigente» = su última copia
+tiene servicio hasta la fecha del corte o después. Guadalajara está resaltada. Para Guadalajara sumamos a mano el GTFS que SETRAN publica desde septiembre de 2026, que es vigente pero no está registrado en el catálogo.</p>
+<p class="sub" id="cmp-resumen"></p>
+<div class="tabla"><table id="t-cmp"><caption class="sub" style="text-align:left;padding:6px 8px">GTFS por área metropolitana (Mobility Database)</caption></table></div>
+<p class="sub">Ninguna de estas áreas tiene GTFS-RT (tiempo real) registrado en el catálogo. Que una ciudad no aparezca no prueba que no publique: el
+catálogo depende de que alguien lo registre. Algunos feeds marcan fechas de fin de relleno (p. ej. 2100), que cuentan como vigentes.
+Fuente: <a href="https://mobilitydatabase.org/">Mobility Database</a> (<a href="data/comparativa.json">comparativa.json</a>,
+<a href="https://github.com/tocaltepetl/rutas-gdl/blob/main/scripts/comparativa_mdb.py">scripts/comparativa_mdb.py</a>), corte del <span id="cmp-corte"></span>.</p>
+
 <footer>
-  Datos: <a href="https://mobilitydatabase.org/feeds/gtfs/mdb-2366">GTFS de SETRAN Jalisco</a> (marzo de 2024), procesados con
+  Datos: <a href="https://setran.jalisco.gob.mx/prensa/notas-web/archivos-gtfs-del-transporte-publico">GTFS de SETRAN Jalisco</a> (publicado vía Ualabee), procesados con
   <a href="https://github.com/tocaltepetl/rutas-gdl/blob/main/scripts/analisis.py">scripts/analisis.py</a>; descarga
   <a href="data/analisis.json">analisis.json</a>, <a href="data/sin_cobertura.geojson">sin_cobertura.geojson</a> y
   <a href="data/corredores.geojson">corredores.geojson</a>. Calculado el 14 de noviembre de 2026.
@@ -229,6 +241,18 @@ Promise.all([
     mostrar('corredores'); mapa.setView(el.dataset.ll.split(',').map(Number), 16);
   });
 }).catch(e => { $('#cifras').textContent = 'No se pudieron cargar los datos del análisis.'; console.error(e); });
+fetch('data/comparativa.json').then(r => r.json()).then(d => {
+  const fecha = iso => iso ? new Date(iso + 'T12:00').toLocaleDateString('es-MX', { year:'numeric', month:'short', day:'numeric' }) : '—';
+  $('#cmp-corte').textContent = fecha(d.corte);
+  const ms = [...d.metros].sort((a, b) => (a.clave === 'gdl' ? -1 : b.clave === 'gdl' ? 1 : b.gtfs_vigentes - a.gtfs_vigentes || a.nombre.localeCompare(b.nombre)));
+  const gdl = ms.find(m => m.clave === 'gdl');
+  const vig = ms.filter(m => m.gtfs_vigentes > 0).length, rt = ms.filter(m => m.gtfs_rt_activos > 0).length;
+  $('#cmp-resumen').textContent = `${vig} de ${ms.length} áreas metropolitanas tienen al menos un GTFS vigente; ${rt} tienen tiempo real.` + (gdl ? ` Guadalajara: ${gdl.gtfs_vigentes ? 'con GTFS vigente' : 'sin GTFS vigente'}${gdl.gtfs_fuera_catalogo ? ' (fuera del catálogo)' : ''}, sin tiempo real.` : '');
+  $('#t-cmp').insertAdjacentHTML('beforeend', '<thead><tr><th scope="col">Área metropolitana</th><th scope="col">País</th><th scope="col">GTFS vigente</th><th scope="col">Servicio hasta</th><th scope="col">Feeds (oficiales)</th><th scope="col">Tiempo real</th></tr></thead><tbody>' +
+    ms.map(m => `<tr${m.clave === 'gdl' ? ' class="gdl"' : ''}><th scope="row" style="position:static;background:none;font-size:14px;color:inherit">${esc(m.nombre)}</th><td>${m.pais}</td>
+      <td class="${m.gtfs_vigentes ? 'si' : 'no'}">${m.gtfs_vigentes ? 'Sí' : 'No'}</td><td>${m.fin_servicio_max ? fecha(m.fin_servicio_max) : '—'}</td>
+      <td class="n">${m.gtfs} (${m.gtfs_oficiales})</td><td>${m.gtfs_rt_activos ? 'Sí' : 'No'}</td></tr>`).join('') + '</tbody>');
+}).catch(e => { $('#cmp-resumen').textContent = 'No se pudo cargar la comparación.'; console.error(e); });
 </script>
 <!-- Cloudflare Web Analytics: visitas sin cookies ni datos personales -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "05f1e13089164a0b824bb84ea67449e1"}'></script>

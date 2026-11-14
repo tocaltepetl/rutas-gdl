@@ -76,10 +76,10 @@
   <nav class="secciones" aria-label="Secciones"><a href="./" aria-current="page">Mapa</a><a href="solicitar.html">Pide los datos</a><a href="datos.html">Estado de los datos</a><a href="analisis.html">Análisis</a></nav>
   <header>
     <h1><img src="favicon.svg" alt="" width="26" height="26" style="vertical-align:-5px;margin-right:6px">Rutas de camiones GDL</h1>
-    <p class="gancho"><strong>Las rutas de 2026 existen, pero no son públicas.</strong>
-      SETRAN se las dio a Google; como datos abiertos solo hay las de 2024.
+    <p class="gancho"><strong>SETRAN ya publica las rutas de 2026, pero sin licencia abierta.</strong>
+      El archivo GTFS está en Ualabee (actualizado el 13 nov 2026, calendario hasta el 31 dic 2026); falta que sea dato abierto con licencia clara.
       <a href="solicitar.html">Pide los datos</a> · <a href="datos.html">Ver qué falta</a></p>
-    <p>Abajo, la red completa con los datos abiertos que sí hay (marzo de 2024). Busca una ruta o toca el mapa para ver cuáles pasan cerca.</p>
+    <p>Abajo, la red completa con los datos abiertos que sí hay (GTFS de SETRAN, archivos del 13 de noviembre de 2026; solo el Área Metropolitana de Guadalajara). Busca una ruta o toca el mapa para ver cuáles pasan cerca.</p>
   </header>
   <input id="buscar" type="search" placeholder="Ruta, número o destino (p. ej. C01, Tlaquepaque)" aria-label="Buscar ruta">
   <div id="filtros"></div>
@@ -88,7 +88,7 @@
   <section id="detalle" hidden aria-live="polite"></section>
   <ul id="lista"></ul>
   <footer>
-    Datos: <a href="https://datos.jalisco.gob.mx/dataset/actualizacion-de-rutas-de-transporte-publico-colectivo-y-masivo-en-la-zona-metropolitana-de">GTFS de SETRAN Jalisco</a> (marzo 2024; puede haber rutas que ya cambiaron).
+    Datos: <a href="https://setran.jalisco.gob.mx/prensa/notas-web/archivos-gtfs-del-transporte-publico">GTFS de SETRAN Jalisco</a> publicado en Ualabee (archivos del 13 nov 2026, calendario hasta el 31 dic 2026; sin licencia explícita).
     Rutas marcadas «Fuente: OpenStreetMap» (línea discontinua) y mapa:
     © <a href="https://www.openstreetmap.org/copyright">colaboradores de OpenStreetMap, ODbL</a>.
     Proyecto cívico no oficial
@@ -158,7 +158,7 @@ function estilo(ru, activa) {
 function visibles() {
   const q = norm($('#buscar').value.trim());
   return rutas.filter(r => (filtro === 'Todas' || r.agencia === filtro)
-    && (!q || r.texto.includes(q)) && (!cerca || cerca.has(r.corto)));
+    && (!q || r.texto.includes(q)) && (!cerca || cerca.has(r.id)));
 }
 
 const marcaOsm = r => r.fuente === 'osm'
@@ -193,7 +193,7 @@ function pintarDetalle() {
   if (reporte) return pintarReporte(ru);
   const fuente = ru.fuente === 'osm'
     ? `Fuente: OpenStreetMap (colaborativo), relación <a href="https://www.openstreetmap.org/relation/${esc(ru.osm_id)}" target="_blank" rel="noopener">${esc(ru.osm_id)}</a>, editada el ${esc(ru.editado)}. © colaboradores de OpenStreetMap, ODbL.`
-    : 'Fuente: GTFS oficial de SETRAN (marzo 2024).';
+    : 'Fuente: GTFS oficial de SETRAN Jalisco (vigente 2026, publicado en Ualabee).';
   d.innerHTML = `<b>${esc(ru.corto)}</b> ${esc(ru.nombre)}<br><small>${esc(ru.agencia)} · ${fuente}</small><br>
     <button class="btn" id="btnReportar">Reportar un cambio en esta ruta</button>`;
   $('#btnReportar').onclick = () => { reporte = { paso: 'punto' }; mapa.getContainer().style.cursor = 'crosshair'; pintarDetalle(); };
@@ -206,7 +206,7 @@ function textoNota(ru) {
   return [
     'Reporte ciudadano de cambio en una ruta de transporte público (Guadalajara).',
     `Ruta: ${ru.corto} (id ${ru.id}) — ${ru.nombre}`,
-    `Sistema: ${ru.agencia}. Datos usados: ${ru.fuente === 'osm' ? 'OpenStreetMap' : 'GTFS de SETRAN 2024'}.`,
+    `Sistema: ${ru.agencia}. Datos usados: ${ru.fuente === 'osm' ? 'OpenStreetMap' : 'GTFS de SETRAN 2026'}.`,
     `Motivo: ${motivo}`,
     `Enviado desde ${SITIO}#ruta=${encodeURIComponent(ru.id)} (proyecto cívico no oficial) #rutasgdl`,
   ].filter(Boolean).join('\n');

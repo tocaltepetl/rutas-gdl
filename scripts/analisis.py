@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Análisis de la red con datos abiertos (GTFS SETRAN 2024). Solo biblioteca estándar.
+"""Análisis de la red con datos abiertos (GTFS SETRAN 2026). Solo biblioteca estándar.
 
 Uso: python3 -I scripts/analisis.py <carpeta_gtfs_descomprimida> public/data
 
 Lee `paradas.geojson` y `rutas.geojson` (generados por gtfs_a_geojson.py) y
-`trips.txt`, `frequencies.txt` y `routes.txt` del GTFS. Genera en public/data:
+`calendar*.txt`, `trips.txt`, `stop_times.txt` y `frequencies.txt` del GTFS. Genera en public/data:
 
   analisis.json           resumen, tabla de frecuencias por ruta, malla de
                           cobertura compacta y corredores
@@ -17,10 +17,13 @@ Métodos (ver docs/decisiones.md):
     <= 2 km de alguna parada (recorte del área urbana; ver ESTUDIO_M).
     Por celda: distancia a la parada más cercana y número de rutas distintas
     con alguna parada a <= 500 m.
-  - Frecuencias: solo servicio entre semana (service_id con lunes = 1). Por
-    ruta: primera salida, última salida, intervalo mínimo y máximo, intervalo
-    en hora pico (ventana activa a las 08:00; si hay varias, la menor) y si
-    hay salidas después de las 23:00 o antes de las 05:00 (servicio nocturno).
+  - Frecuencias: servicios activos un miércoles típico (el miércoles de la
+    vigencia con más viajes; respeta calendar_dates). Salida de cada viaje =
+    hora en su primera parada (stop_times, leído en streaming). Por ruta:
+    primera y última salida, intervalo en hora pico (07:00-09:00, sentido más
+    frecuente), intervalo mínimo (hora más frecuente) y mayor hueco, y si hay
+    salidas después de las 23:00 o antes de las 05:00 (servicio nocturno).
+    También reescribe `frec_min` en rutas.geojson con el intervalo en pico.
   - Corredores: los trazos se muestrean cada 20 m sobre una malla de 150 m;
     por celda se cuentan rutas distintas (ambos sentidos cuentan una vez).
 """
@@ -30,6 +33,7 @@ import math
 import os
 import sys
 from collections import defaultdict
+from datetime import datetime, timedelta
 
 LAT0 = 20.67
 KX = 111320 * math.cos(math.radians(LAT0))  # m por grado de longitud
@@ -39,7 +43,7 @@ A_PIE = 500       # m, distancia caminable a una parada
 ESTUDIO_M = 2000  # m, recorte del área de estudio
 CELDA_COR = 150   # m, malla de corredores
 PASO = 20         # m, muestreo de trazos
-PICO = 8 * 3600   # 08:00
+PICO_INI, PICO_FIN = 7 * 3600, 9 * 3600  # hora pico de la mañana
 NOCHE_INI, NOCHE_FIN = 23 * 3600, 5 * 3600
 
 
@@ -103,38 +107,108 @@ def caja(x0, y0, i, j, lado):
              [r(a[0]), r(b[1])], [r(a[0]), r(a[1])]]]
 
 
+def filas(gtfs, nombre):
+    """CSV renglón por renglón (stop_times.txt pesa ~360 MB)."""
+    with open(os.path.join(gtfs, nombre), encoding='utf-8-sig', newline='') as f:
+        yield from csv.DictReader(f)
+
+
+def dia_tipo(gtfs, viajes_por_servicio):
+    """Miércoles de la vigencia con más viajes activos (calendar + calendar_dates).
+    Evita días festivos y servicios especiales de un solo día."""
+    cal = list(filas(gtfs, 'calendar.txt'))
+    excep = defaultdict(dict)
+    if os.path.exists(os.path.join(gtfs, 'calendar_dates.txt')):
+        for r in filas(gtfs, 'calendar_dates.txt'):
+            excep[r['date']][r['service_id']] = r['exception_type']
+    d = min(datetime.strptime(c['start_date'], '%Y%m%d').date() for c in cal)
+    fin = max(datetime.strptime(c['end_date'], '%Y%m%d').date() for c in cal)
+    mejor = None
+    while d <= fin:
+        if d.weekday() == 2:
+            ds = d.strftime('%Y%m%d')
+            act = {c['service_id'] for c in cal
+                   if c['wednesday'] == '1' and c['start_date'] <= ds <= c['end_date']}
+            for sid, tipo in excep[ds].items():
+                (act.add if tipo == '1' else act.discard)(sid)
+            n = sum(viajes_por_servicio.get(x, 0) for x in act)
+            if mejor is None or n > mejor[0]:
+                mejor = (n, ds, act)
+        d += timedelta(days=1)
+    return mejor[1], mejor[2]
+
+
 def frecuencias(gtfs, info):
-    abrir = lambda n: csv.DictReader(open(os.path.join(gtfs, n), encoding='utf-8-sig'))
-    lunes = {r['service_id'] for r in abrir('calendar.txt') if r['monday'] == '1'}
-    viaje = {r['trip_id']: r['route_id'] for r in abrir('trips.txt') if r['service_id'] in lunes}
-    nombres = {r['route_id']: r for r in abrir('routes.txt')}
-    ventanas = defaultdict(list)
-    for r in abrir('frequencies.txt'):
-        ruta = viaje.get(r['trip_id'])
-        if ruta:
-            ventanas[ruta].append((seg(r['start_time']), seg(r['end_time']), int(r['headway_secs'])))
-    filas = []
-    for ruta, vs in sorted(ventanas.items()):
-        n = nombres.get(ruta, {})
-        pico = [h for a, b, h in vs if a <= PICO < b]
-        ini = min(a for a, _, _ in vs)
-        fin = max(b for _, b, _ in vs)
-        nocturno = any(b > NOCHE_INI or a < NOCHE_FIN for a, b, _ in vs)
-        filas.append({
+    """Salidas desde la primera parada de cada viaje, un miércoles típico.
+    El feed 2026 casi no usa frequencies.txt (18 renglones): los horarios están
+    en stop_times, así que se toma la hora de la parada con menor stop_sequence;
+    los viajes con frequencies.txt se expanden en salidas cada headway."""
+    trips = [t for t in filas(gtfs, 'trips.txt') if t['route_id'] in info]
+    por_serv = defaultdict(int)
+    for t in trips:
+        por_serv[t['service_id']] += 1
+    dia, activos = dia_tipo(gtfs, por_serv)
+    viaje = {t['trip_id']: (t['route_id'], t.get('direction_id') or '0')
+             for t in trips if t['service_id'] in activos}
+    salidas = defaultdict(list)  # (ruta, sentido) -> [segundos]
+    con_frec = defaultdict(list)
+    for r in filas(gtfs, 'frequencies.txt'):
+        if r['trip_id'] in viaje:
+            con_frec[r['trip_id']].append((seg(r['start_time']), seg(r['end_time']),
+                                           int(r['headway_secs'])))
+    primera = {}  # trip_id -> (stop_sequence, salida, parada)
+    for st in filas(gtfs, 'stop_times.txt'):
+        tid = st['trip_id']
+        if tid not in viaje:
+            continue
+        hora = st['departure_time'] or st['arrival_time']
+        if not hora:
+            continue
+        sq = int(st['stop_sequence'])
+        if tid not in primera or sq < primera[tid][0]:
+            primera[tid] = (sq, hora, st['stop_id'])
+    # El sentido se distingue también por la parada de salida: hay rutas con
+    # ambos sentidos marcados con el mismo direction_id (p. ej. MT_L4), y sin
+    # esto se sumarían y el intervalo saldría a la mitad.
+    for tid, (_, hora, parada) in primera.items():
+        clave = viaje[tid] + (parada,)
+        if tid in con_frec:
+            for a, b, h in con_frec[tid]:
+                salidas[clave] += range(a, b, h)
+        else:
+            salidas[clave].append(seg(hora))
+    por_ruta = defaultdict(dict)
+    for (ruta, sentido, parada), xs in salidas.items():
+        por_ruta[ruta][(sentido, parada)] = sorted(xs)
+    filas_out = []
+    for ruta, sentidos in sorted(por_ruta.items()):
+        todas = [x for xs in sentidos.values() for x in xs]
+        pico, minimo, huecos = [], [], []
+        for xs in sentidos.values():
+            k = sum(1 for x in xs if PICO_INI <= x < PICO_FIN)
+            if k:
+                pico.append((PICO_FIN - PICO_INI) / k)
+            horas = defaultdict(int)
+            for x in xs:
+                horas[x // 3600] += 1
+            minimo += [3600 / v for v in horas.values()]
+            huecos += [b - a for a, b in zip(xs, xs[1:])]
+        filas_out.append({
             'id': ruta,
-            'corto': n.get('route_short_name') or ruta,
-            'nombre': n.get('route_long_name', ''),
-            'agencia': info.get(ruta, {}).get('agencia', ''),
-            'trazo': ruta in info,
-            'revisar': info.get(ruta, {}).get('revisar', False),
-            'primera': hhmm(ini),
-            'ultima': hhmm(fin),
-            'min_min': round(min(h for *_, h in vs) / 60),
-            'max_min': round(max(h for *_, h in vs) / 60),
+            'corto': info[ruta].get('corto') or ruta,
+            'nombre': info[ruta].get('nombre', ''),
+            'agencia': info[ruta].get('agencia', ''),
+            'trazo': True,
+            'revisar': info[ruta].get('revisar', False),
+            'viajes': len(todas),
+            'primera': hhmm(min(todas)),
+            'ultima': hhmm(max(todas)),
+            'min_min': round(min(minimo) / 60),
+            'max_min': round(max(huecos) / 60) if huecos else None,
             'pico_min': round(min(pico) / 60) if pico else None,
-            'nocturno': nocturno,
+            'nocturno': any(x >= NOCHE_INI or x < NOCHE_FIN for x in todas),
         })
-    return filas
+    return dia, filas_out
 
 
 def corredores(rutas):
@@ -178,7 +252,7 @@ def main(gtfs, salida):
         for i, j, d, _ in sin]}
 
     # b) frecuencias
-    frec = frecuencias(gtfs, info)
+    dia, frec = frecuencias(gtfs, info)
     con_pico = [f for f in frec if f['pico_min'] is not None]
 
     # c) corredores
@@ -214,7 +288,7 @@ def main(gtfs, salida):
 
     pct = lambda a, b: round(100 * len(a) / len(b), 1) if b else 0
     resumen = {
-        'fuente': 'GTFS SETRAN Jalisco gtfs_amg_20240312 (copia Mobility Database mdb-2366)',
+        'fuente': 'GTFS SETRAN Jalisco publicado en Ualabee (ualabee.com/api/v3/cities/35/gtfs-feeds/public), archivos del 2026-11-13, vigencia 2026-05-01 a 2026-12-31; solo agencias del AMG',
         'cobertura': {
             'celda_m': CELDA, 'a_pie_m': A_PIE, 'estudio_m': ESTUDIO_M,
             'celdas': len(celdas), 'sin_cobertura': len(sin), 'pct_sin_cobertura': pct(sin, celdas),
@@ -229,7 +303,8 @@ def main(gtfs, salida):
             'pico_30_o_mas': sum(f['pico_min'] >= 30 for f in con_pico),
             'sin_nocturno': sum(not f['nocturno'] for f in frec),
             'terminan_antes_22': sum(seg(f['ultima'] + ':00') <= 22 * 3600 for f in frec),
-            'nota': 'Servicio entre semana. Pico = ventana activa a las 08:00.',
+            'dia_tipo': f'{dia[:4]}-{dia[4:6]}-{dia[6:]}',
+            'nota': 'Salidas desde la primera parada un miércoles típico (dia_tipo). Pico = salidas entre 07:00 y 09:00 en el sentido más frecuente. min_min = intervalo promedio en la hora más frecuente; max_min = mayor hueco entre salidas consecutivas.',
         },
         'corredores': {'celda_m': CELDA_COR, 'umbral_rutas': umbral,
                        'max_rutas': top[0][0] if top else 0, 'celdas': len(top)},
@@ -246,6 +321,11 @@ def main(gtfs, salida):
     escribir = lambda n, d: json.dump(d, open(os.path.join(salida, n), 'w', encoding='utf-8'),
                                       ensure_ascii=False, separators=(',', ':'))
     escribir('analisis.json', out)
+    # frec_min del mapa = intervalo en hora pico calculado aquí
+    pico = {f['id']: f['pico_min'] for f in frec}
+    for f in rutas['features']:
+        f['properties']['frec_min'] = pico.get(f['properties']['id'])
+    escribir('rutas.geojson', rutas)
     escribir('sin_cobertura.geojson', geo_sin)
     escribir('corredores.geojson', geo_cor)
     print(json.dumps(resumen, ensure_ascii=False, indent=1))

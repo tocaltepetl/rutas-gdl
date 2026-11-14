@@ -1,14 +1,18 @@
 # Jornada de mapeo: rutas de camión en OpenStreetMap
 
-El GTFS abierto de SETRAN es de marzo de 2024 y hay al menos 58 rutas nuevas
-que no están en ningún dato abierto (ver [estado de los datos](../public/datos.html)).
-Mientras SETRAN no publique el GTFS actual, OpenStreetMap (OSM) es la forma de
-tener esas rutas como dato abierto (licencia ODbL). En noviembre de 2026 había
-251 relaciones de rutas de camión en la ZMG; solo 54 se editaron en 2026.
+*Actualizado el 2026-11-14:* SETRAN publica desde el 30 de septiembre de 2026
+un GTFS vigente (vía Ualabee) que ya trae las 58 rutas que faltaban en el de
+marzo de 2024, y el mapa de este sitio lo usa. Pero ese archivo **no tiene
+licencia explícita**, así que no se puede copiar a OSM. Mapear en OpenStreetMap
+sigue sirviendo para tener las rutas como dato abierto de verdad (licencia
+ODbL), corregir errores y no depender de un solo proveedor. En noviembre de
+2026 había 251 relaciones de rutas de camión en la ZMG; solo 54 se editaron
+en 2026.
 
 > **Regla de oro:** mapea lo que tú viste o recorriste. **No copies** trazos ni
-> paradas de Google Maps, Moovit, Treep/Ualabee ni de ninguna app: no tienen
-> licencia compatible y OSM los borra. La lista de abajo solo dice *qué* falta.
+> paradas de Google Maps, Moovit, Treep/Ualabee, del GTFS de SETRAN (no tiene
+> licencia explícita) ni de ninguna app: no tienen licencia compatible y OSM
+> los borra. La lista de abajo solo dice *qué* falta.
 
 ## Antes de empezar
 - Crea una cuenta en <https://www.openstreetmap.org/user/new>.

@@ -62,11 +62,77 @@
 cuál puede usar cualquier persona y cuál está cerrada. Revisado el <time datetime="2026-11-14">14 de noviembre de 2026</time>.</p>
 
 <div class="cifras">
-  <div><b>275</b><span>rutas en el último GTFS abierto (marzo de 2024)</span></div>
-  <div><b>247</b><span>de ellas traen trazo y aparecen en el mapa</span></div>
-  <div><b>21</b><span>rutas de Mi Transporte de 2024 que ya no aparecen en listas recientes</span></div>
-  <div><b>58</b><span>identificadores de ruta nuevos que no están en ningún dato abierto</span></div>
+  <div><b>401</b><span>rutas de 11 sistemas en el GTFS que SETRAN publicó en 2026 (incluye Puerto Vallarta y Lagos de Moreno)</span></div>
+  <div><b>275</b><span>de ellas son de Mi Transporte</span></div>
+  <div><b>0</b><span>licencias abiertas explícitas: el archivo no dice cómo se puede reutilizar</span></div>
+  <div><b>0</b><span>feeds de tiempo real (GTFS-Realtime) públicos</span></div>
 </div>
+
+<h2 id="gtfs-oficial">GTFS vigente de SETRAN</h2>
+<p>El 30 de septiembre de 2026 SETRAN anunció que publica los <a href="https://setran.jalisco.gob.mx/prensa/notas-web/archivos-gtfs-del-transporte-publico">archivos GTFS del transporte público</a>.
+El enlace (<code>ualabee.com/api/v3/cities/35/gtfs-feeds/public</code>) descarga un ZIP de unos 52 MB alojado por Ualabee, una empresa privada.
+Es un avance real: desde noviembre de 2026 el mapa de este sitio usa ese archivo.</p>
+<p class="nota" id="setran-estado">Revisión del 14 de noviembre de 2026: archivos fechados el 13 de noviembre de 2026; calendario del 1 de mayo al
+31 de diciembre de 2026. Lo revisamos cada semana (<a href="data/setran.json">datos de la revisión</a>).</p>
+<script>
+(function () {
+  var el = document.getElementById('setran-estado');
+  var larga = function (s) { return new Date(s + 'T12:00:00').toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' }); };
+  fetch('data/setran.json').then(function (r) { return r.json(); }).then(function (d) {
+    el.textContent = '';
+    if (!d.ok) { el.append('El enlace de SETRAN falló en la revisión del ' + d.revisado + '. '); }
+    else {
+      var fin = d.calendario && d.calendario.fin;
+      var dias = fin ? Math.floor((new Date(fin + 'T23:59:59') - Date.now()) / 864e5) : null;
+      var t = 'Archivo actualizado el ' + larga(d.version.fecha) + '. ';
+      if (fin) t += dias < 0 ? 'Su calendario venció el ' + larga(fin) + '. '
+                             : 'Su calendario llega al ' + larga(fin) + (dias > 0 ? ' (en ' + dias + ' días). ' : ' (hoy). ');
+      el.append(t + 'Revisado el ' + d.revisado + '. ');
+    }
+    var a = document.createElement('a'); a.href = 'data/setran.json'; a.textContent = 'Datos de la revisión';
+    el.append(a, '.');
+  }).catch(function () {});
+})();
+</script>
+
+<h2>Qué falta para que sea dato abierto de verdad</h2>
+<ul>
+  <li><b>Licencia abierta explícita.</b> Ni la nota ni el archivo dicen bajo qué condiciones se puede reutilizar.</li>
+  <li><b>Publicarlo en el portal oficial.</b> No está en datos.jalisco.gob.mx ni registrado en la <a href="https://mobilitydatabase.org/">Mobility Database</a>, el catálogo internacional donde se buscan estos feeds.</li>
+  <li><b>Enlace estable y con metadatos.</b> El enlace redirige a un almacenamiento con token y el archivo no trae <code>feed_info.txt</code> (quién lo publica, versión, vigencia, contacto).</li>
+  <li><b>Tiempo real público.</b> Es lo que más falta. La ubicación de los camiones existe (la usan las apps de Ualabee y «Mi Ruta»), pero no hay un feed GTFS-Realtime abierto.
+    En el catálogo de la Mobility Database hay más de mil feeds GTFS-Realtime en el mundo y ninguno de México, Brasil, Chile, Colombia, Argentina ni Perú:
+    Guadalajara podría ser de las primeras de la región.</li>
+  <li><b>SITEUR completo.</b> Mi Tren, Mi Macro y alimentadoras con todos sus datos y su tiempo real.</li>
+  <li><b>Independencia del proveedor.</b> Que el dato público no dependa de que una empresa privada mantenga el enlace.</li>
+</ul>
+
+<p class="nota">Contraste local: <b>MiBici</b> ya publica su estado en tiempo real en formato abierto
+(<a href="https://guadalajara.publicbikesystem.net/customer/gbfs/v3.0/gbfs.json">GBFS 3.0</a>, unas 470 estaciones, listado en el catálogo de MobilityData),
+aunque tampoco declara licencia. El transporte público puede hacer lo mismo.</p>
+
+<h2 id="gtfs-2024">GTFS anterior (2024)</h2>
+<p class="nota" id="mdb-estado">GTFS de marzo de 2024: venció el 31 de diciembre de 2024;
+estado en la Mobility Database: <b>inactive</b>. Lo seguimos revisando cada semana (<a href="data/mdb.json">datos de la revisión</a>).</p>
+<p>Hasta noviembre de 2026 este sitio usaba el GTFS de marzo de 2024 publicado en datos.jalisco.gob.mx. Como el portal no nos respondió
+al consultarlo, se tomó la copia de la <a href="https://mobilitydatabase.org/feeds/gtfs/mdb-2366">Mobility Database (feed mdb-2366)</a>.</p>
+<script>
+(function () {
+  var el = document.getElementById('mdb-estado');
+  fetch('data/mdb.json').then(function (r) { return r.json(); }).then(function (d) {
+    var fin = d.calendario && d.calendario.fin; if (!fin) return;
+    var f = new Date(fin + 'T23:59:59');
+    var dias = Math.floor((Date.now() - f) / 864e5);
+    var fecha = f.toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' });
+    var t = dias > 0 ? 'venció el ' + fecha + ', hace ' + dias.toLocaleString('es-MX') + ' días'
+                     : 'vence el ' + fecha + (dias < 0 ? ', en ' + (-dias) + ' días' : ', hoy');
+    el.textContent = '';
+    var b = document.createElement('b'); b.textContent = d.estado_mdb;
+    el.append('GTFS de marzo de 2024: ' + t + '; estado en la Mobility Database: ', b,
+      ' (revisado el ' + d.revisado + ').');
+  }).catch(function () {});
+})();
+</script>
 
 <h2>Qué existe y qué es abierto</h2>
 <p>«Abierto» quiere decir que cualquiera puede descargarlo y reutilizarlo sin pedir permiso ni pasar por una app privada.</p>
@@ -75,18 +141,18 @@ cuál puede usar cualquier persona y cuál está cerrada. Revisado el <time date
 <thead><tr><th>Dato</th><th>¿Abierto?</th><th>¿Al día?</th><th>Quién lo tiene / dónde</th><th>Consultado</th></tr></thead>
 <tbody>
 <tr>
-  <td>GTFS SETRAN 2024<small>Rutas, paradas, trazos y frecuencias (archivo <code>gtfs_amg_20240312.zip</code>)</small></td>
-  <td data-t="¿Abierto?"><span class="si">Sí</span><small>Licencia por confirmar</small></td>
-  <td data-t="¿Al día?"><span class="no">No</span><small>Marzo de 2024</small></td>
-  <td data-t="Dónde"><a href="https://datos.jalisco.gob.mx/dataset/actualizacion-de-rutas-de-transporte-publico-colectivo-y-masivo-en-la-zona-metropolitana-de">datos.jalisco.gob.mx</a> (el portal no respondía);
-      copia en la <a href="https://mobilitydatabase.org/feeds/gtfs/mdb-2366">Mobility Database (mdb-2366)</a>. Es la base de este sitio.</td>
-  <td data-t="Consultado">2026-11-14<small>portal caído ese día</small></td>
+  <td>GTFS SETRAN 2026<small>401 rutas de 11 sistemas; base de este sitio</small></td>
+  <td data-t="¿Abierto?"><span class="medio">Descargable</span><small>Sin licencia explícita</small></td>
+  <td data-t="¿Al día?"><span class="si">Sí</span><small>Calendario hasta el 31-dic-2026</small></td>
+  <td data-t="Dónde">Enlace anunciado por <a href="https://setran.jalisco.gob.mx/prensa/notas-web/archivos-gtfs-del-transporte-publico">SETRAN</a> (30-sep-2026), alojado por Ualabee. No está en datos.jalisco.gob.mx ni en la Mobility Database.</td>
+  <td data-t="Consultado">2026-11-14</td>
 </tr>
 <tr>
-  <td>GTFS SETRAN 2026<small>La versión actual, con 275 rutas en Google Maps</small></td>
-  <td data-t="¿Abierto?"><span class="no">No</span></td>
-  <td data-t="¿Al día?"><span class="si">Sí</span></td>
-  <td data-t="Dónde">SETRAN lo entregó a Google; Ualabee/Treep muestra las mismas rutas en <a href="https://treep.app/index/agency/35/BUS">treep.app</a>. No se ha publicado como dato abierto.</td>
+  <td>GTFS SETRAN 2024<small>Archivo <code>gtfs_amg_20240312.zip</code></small></td>
+  <td data-t="¿Abierto?"><span class="si">Sí</span><small>Licencia por confirmar</small></td>
+  <td data-t="¿Al día?"><span class="no">No</span><small>Venció el 31-dic-2024</small></td>
+  <td data-t="Dónde"><a href="https://datos.jalisco.gob.mx/dataset/actualizacion-de-rutas-de-transporte-publico-colectivo-y-masivo-en-la-zona-metropolitana-de">datos.jalisco.gob.mx</a> (no respondió en nuestra consulta);
+      copia en la <a href="https://mobilitydatabase.org/feeds/gtfs/mdb-2366">Mobility Database (mdb-2366)</a>. Fue la base de este sitio hasta noviembre de 2026.</td>
   <td data-t="Consultado">2026-11-14</td>
 </tr>
 <tr>
@@ -121,21 +187,12 @@ cuál puede usar cualquier persona y cuál está cerrada. Revisado el <time date
 </table>
 </div>
 
-<h2>Rutas que pudieron cambiar</h2>
-<p>El sitio treep.app lista 275 líneas de Mi Transporte con los mismos identificadores que usa SETRAN, pero de una versión más nueva que la abierta.
-Comparando solo los identificadores (no copiamos sus trazos):</p>
-<ul>
-  <li><b>21</b> rutas de Mi Transporte del GTFS 2024 ya no aparecen; casi todas se dividieron en variantes. Solo 5 de ellas tienen trazo en el mapa (C05, C104, C117, C138, T09-O) y ahí se marcan con un aviso.</li>
-  <li><b>58</b> identificadores son nuevos. No podemos mostrarlos hasta que SETRAN publique el GTFS actual o la comunidad los mapee en OpenStreetMap.</li>
-</ul>
-<p>Lista completa: <a href="https://github.com/tocaltepetl/rutas-gdl/blob/main/datos/lineas-treep-mi-transporte.txt">datos/lineas-treep-mi-transporte.txt</a>.</p>
-
 <h2>Qué se ha pedido</h2>
 <p>Preparamos dos solicitudes de acceso a la información en la Plataforma Nacional de Transparencia.
 Puedes enviarlas tú también: entre más personas las pidan, más difícil es ignorarlas. <a href="solicitar.html">Cómo solicitarlas</a>.</p>
 <ol>
-  <li><b>A SETRAN</b> (Secretaría de Transporte): el GTFS vigente que entregó a Google, la dirección de los datos en tiempo real, el convenio con Ualabee y quién es dueño de esos datos, cuántas unidades transmiten su GPS y la licencia del GTFS de 2024.</li>
-  <li><b>A SITEUR</b> (Tren Eléctrico Urbano): el GTFS de Mi Tren, Mi Macro y alimentadoras, la documentación de la fuente de tiempo real de «Mi Ruta», si habrá un feed GTFS-Realtime público, y el contrato con el proveedor.</li>
+  <li><b>A SETRAN</b> (Secretaría de Transporte): la licencia del GTFS que ya publica y su publicación en datos.jalisco.gob.mx con un enlace estable, la dirección de los datos en tiempo real, el convenio con Ualabee y quién es dueño de esos datos, y cuántas unidades transmiten su GPS.</li>
+  <li><b>A SITEUR</b> (Tren Eléctrico Urbano): el GTFS completo de Mi Tren, Mi Macro y alimentadoras, la documentación de la fuente de tiempo real de «Mi Ruta», si habrá un feed GTFS-Realtime público, y el contrato con el proveedor.</li>
 </ol>
 <p class="nota">Texto completo de ambas: <a href="https://github.com/tocaltepetl/rutas-gdl/blob/main/docs/solicitudes-transparencia.md">docs/solicitudes-transparencia.md</a>. Aquí publicaremos las respuestas.</p>
 
