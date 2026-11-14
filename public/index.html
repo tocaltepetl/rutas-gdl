@@ -26,6 +26,7 @@
   #lista li:hover, #lista li.sel { background:var(--card); }
   .chip { flex:none; min-width:46px; text-align:center; font-weight:600; font-size:13px; padding:2px 6px; border-radius:6px; color:#fff; }
   .nom { font-size:13px; } .nom small { display:block; color:var(--mute); }
+  .rev { color:#b25e00; } @media (prefers-color-scheme: dark) { .rev { color:#ffb454; } }
   footer { padding:10px 16px; font-size:12px; color:var(--mute); border-top:1px solid var(--line); }
   footer a { color:var(--acc); }
   #mapa { min-height:0; }
@@ -117,9 +118,10 @@ function pintar() {
     : `${vis.length} de ${rutas.length} rutas`;
   $('#lista').innerHTML = vis.map(r => {
     const f = r.frec_min ? ` · cada ~${r.frec_min} min en hora pico` : '';
+    const rev = r.revisar ? '<small class="rev">⚠ Ya no aparece igual en listas recientes: puede haber cambiado.</small>' : '';
     return `<li data-id="${r.id}" class="${r.id === seleccion ? 'sel' : ''}">
       <span class="chip" style="background:${r.color}">${r.corto}</span>
-      <span class="nom">${r.nombre}<small>${r.agencia}${f}</small></span></li>`;
+      <span class="nom">${r.nombre}<small>${r.agencia}${f}</small>${rev}</span></li>`;
   }).join('');
 }
 

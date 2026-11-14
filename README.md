@@ -6,9 +6,15 @@
 > [CONTRIBUTING](https://github.com/tocaltepetl/.github/blob/main/CONTRIBUTING.md)
 > (in Spanish; English is fine in issues and PRs).
 
-Mapa **no oficial**, libre y sin anuncios de las rutas de transporte público de
-la zona metropolitana de Guadalajara: Mi Transporte, Mi Macro, Mi Tren, Si Tren
-y Mi Transporte Eléctrico.
+Observatorio **no oficial** de las rutas de transporte público de la zona
+metropolitana de Guadalajara (Mi Transporte, Mi Macro, Mi Tren, Si Tren y Mi
+Transporte Eléctrico): un mapa libre y sin anuncios, el estado de los datos
+abiertos y análisis de la red.
+
+La información pública de transporte debería llegar a la ciudadanía sin
+depender de plataformas privadas. Este proyecto usa solo datos abiertos (GTFS
+oficial y OpenStreetMap) y busca que SETRAN y SITEUR publiquen los suyos,
+incluido el tiempo real. Ver [decisiones](docs/decisiones.md#propósito-2026-11-14).
 
 ## Qué muestra
 - Las rutas con su trazo y color oficial sobre OpenStreetMap.
@@ -36,7 +42,7 @@ Para regenerar `public/data/`:
 ```sh
 curl -L -o /tmp/gtfs.zip https://files.mobilitydatabase.org/mdb-2366/latest.zip
 unzip -o /tmp/gtfs.zip -d /tmp/gtfs
-python3 -I scripts/gtfs_a_geojson.py /tmp/gtfs public/data
+python3 -I scripts/gtfs_a_geojson.py /tmp/gtfs public/data datos/lineas-treep-mi-transporte.txt
 ```
 
 ## Uso local

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Convierte el GTFS de la ZMG en GeoJSON ligero para el mapa.
 
-Uso: python3 -I scripts/gtfs_a_geojson.py <carpeta_gtfs_descomprimida> public/data
+Uso: python3 -I scripts/gtfs_a_geojson.py <carpeta_gtfs_descomprimida> public/data [datos/lineas-treep-mi-transporte.txt]
 
 Genera:
   rutas.geojson   una línea por ruta y sentido (trazo del shape), con propiedades
@@ -38,7 +38,14 @@ def simplificar(pts, tol=TOL):
     return simplificar(pts[: imax + 1], tol)[:-1] + simplificar(pts[imax:], tol)
 
 
-def main(gtfs, salida):
+def main(gtfs, salida, vigentes=None):
+    """`vigentes`: archivo con identificadores de líneas de Mi Transporte
+    actuales (uno por renglón, # = comentario). Las líneas de Mi Transporte
+    del GTFS que no estén ahí se marcan con `revisar: true`."""
+    lista = None
+    if vigentes:
+        with open(vigentes, encoding="utf-8") as f:
+            lista = {l.strip() for l in f if l.strip() and not l.startswith("#")}
     salida = Path(salida)
     salida.mkdir(parents=True, exist_ok=True)
     sys.setrecursionlimit(20000)
@@ -101,6 +108,7 @@ def main(gtfs, salida):
                 "sentido": int(sentido),
                 "destino": destino,
                 "frec_min": round(frec_ruta[rid] / 60) if rid in frec_ruta else None,
+                "revisar": bool(lista is not None and r["agency_id"] == "BUS" and rid not in lista),
             },
         })
 
@@ -127,4 +135,4 @@ def main(gtfs, salida):
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:3])
+    main(*sys.argv[1:4])
