@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pide los datos de las rutas</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#1d2420">
+<meta property="og:title" content="Pide los datos de las rutas">
+<meta property="og:description" content="Guía para pedir por transparencia que SETRAN y SITEUR publiquen sus datos de rutas y tiempo real.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_MX">
+<meta property="og:url" content="https://rutasgdl.tocaltepetl.org/solicitar.html">
+<meta property="og:image" content="https://rutasgdl.tocaltepetl.org/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Logo de rutas gdl: una ruta con paradas dentro de un cerro, sobre agua">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="description" content="Guía para pedir por transparencia a SETRAN y SITEUR los datos abiertos de las rutas de transporte público de Guadalajara, y registro público de las solicitudes.">
+<style>
+  :root { --bg:#faf8f3; --fg:#1d2420; --mute:#5d6660; --line:#ddd6c8; --acc:#2c6e8e; --on-acc:#fff; --card:#efe9dc; --ok:#1a7f37; --mal:#c62828; --esp:#b25e00; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#151a17; --fg:#efe9dc; --mute:#a9b0aa; --line:#2e3631; --acc:#6fb3d2; --on-acc:#10202a; --card:#1d2420; --ok:#4cc26a; --mal:#ff7a7a; --esp:#ffb454; } }
+  * { box-sizing:border-box; }
+  html, body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.5 system-ui, sans-serif; }
+  main, header, footer { max-width:760px; margin:0 auto; padding:0 16px; }
+  header { padding-top:20px; }
+  h1 { font-size:24px; margin:0 0 6px; line-height:1.2; }
+  h2 { font-size:19px; margin:32px 0 8px; padding-top:12px; border-top:1px solid var(--line); }
+  h3 { font-size:16px; margin:20px 0 6px; }
+  a { color:var(--acc); }
+  .mute { color:var(--mute); font-size:14px; }
+  ol li { margin:4px 0; }
+  .caja { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin:12px 0; }
+  textarea { width:100%; min-height:220px; font:13px/1.45 ui-monospace, monospace; padding:10px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--fg); resize:vertical; }
+  button, input, select { font:inherit; }
+  button { padding:7px 14px; border-radius:8px; border:1px solid var(--acc); background:var(--acc); color:var(--on-acc); cursor:pointer; }
+  button.sec { background:none; color:var(--acc); }
+  input, select { padding:7px 9px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--fg); max-width:100%; }
+  form { display:grid; gap:10px; }
+  form label { display:grid; gap:3px; font-size:14px; }
+  .fila { display:flex; gap:10px; flex-wrap:wrap; align-items:end; }
+  .msg { font-size:14px; min-height:1.4em; margin:4px 0 0; }
+  .msg.ok { color:var(--ok); } .msg.err { color:var(--mal); }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th, td { text-align:left; padding:5px 6px; border-bottom:1px solid var(--line); }
+  td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; }
+  .tabla { overflow-x:auto; }
+  .cifras { display:flex; gap:12px; flex-wrap:wrap; }
+  .cifras div { flex:1 1 140px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
+  .cifras b { display:block; font-size:24px; }
+  .e-negada { color:var(--mal); } .e-entregada { color:var(--ok); } .e-sin-respuesta, .e-prorroga { color:var(--esp); }
+  footer { margin-top:40px; padding-top:12px; padding-bottom:24px; border-top:1px solid var(--line); font-size:13px; color:var(--mute); }
+</style>
+</head>
+<body>
+<header>
+  <p class="mute"><a href="./">← Mapa de rutas</a></p>
+  <h1><img src="favicon.svg" alt="" width="26" height="26" style="vertical-align:-5px;margin-right:6px">Pide los datos de las rutas</h1>
+  <p>Una guía para pedir, por transparencia, que SETRAN y SITEUR publiquen los datos de las rutas como datos abiertos. Toma unos 10 minutos.</p>
+</header>
+<main>
+
+<h2>Por qué importa</h2>
+<p>El Gobierno de Jalisco ya tiene los datos actualizados de las rutas: en 2026 la Secretaría de Transporte (SETRAN) se los dio a <b>Google</b> para que aparecieran en Google Maps, y una empresa privada (<b>Ualabee</b>) maneja la ubicación de los camiones en tiempo real. Pero esos datos no están publicados para la ciudadanía: lo único abierto es un archivo de marzo de 2024.</p>
+<p>Si el gobierno ya compartió la información con particulares, debería estar abierta para cualquiera: para que universidades, periodistas, colectivos o cualquier persona puedan hacer mapas, revisar si el servicio cumple o crear sus propias herramientas, sin depender de una plataforma privada.</p>
+<p>Una solicitud de acceso a la información es un derecho; es gratis y no necesitas dar razones. Entre más personas pregunten, más difícil es ignorarlo.</p>
+
+<h2>Paso a paso</h2>
+<ol>
+  <li>Entra a la <a href="https://www.plataformadetransparencia.org.mx" target="_blank" rel="noopener">Plataforma Nacional de Transparencia (PNT)</a> e inicia sesión o crea una cuenta (la pide la plataforma, no nosotros; puedes usar un seudónimo).</li>
+  <li>Ve a <b>Solicitudes</b> → <b>Crear solicitud</b> (o «Solicitud de información»).</li>
+  <li>En <b>Estado o Federación</b> elige <b>Jalisco</b>.</li>
+  <li>En <b>Sujeto obligado</b> busca el de la solicitud que vas a enviar (abajo): <b>Secretaría de Transporte del Estado de Jalisco</b> o <b>Sistema de Tren Eléctrico Urbano (SITEUR)</b>.</li>
+  <li>Toca <b>Copiar texto</b> aquí abajo y pégalo en el campo de la descripción de la solicitud.</li>
+  <li>En <b>modalidad de entrega</b> elige la <b>electrónica</b> (por la plataforma), sin costo.</li>
+  <li>Envíala y <b>guarda el folio</b> y el acuse. En la PNT puedes ver el plazo de respuesta y darle seguimiento.</li>
+  <li>Si quieres, regístrala abajo (solo folio y fecha) para que todos veamos cuántas se han hecho y cuántas siguen sin respuesta.</li>
+</ol>
+<p class="mute">Nosotros no enviamos nada por ti: la solicitud la mandas tú desde la PNT.</p>
+
+<h3>Solicitud 1: Secretaría de Transporte (SETRAN)</h3>
+<p class="mute">Pide el GTFS vigente (el que se entregó a Google), los datos en tiempo real, el convenio con Ualabee y la licencia de los datos.</p>
+<textarea id="t-setran" readonly aria-label="Texto de la solicitud a SETRAN">Con fundamento en el artículo 6.º de la Constitución Política de los Estados Unidos Mexicanos y en la Ley de Transparencia y Acceso a la Información Pública del Estado de Jalisco y sus Municipios, solicito la siguiente información:
+
+1. GTFS estático vigente. Los archivos GTFS (Especificación General de Feeds de Transporte Público) más recientes de las rutas de transporte público de la Zona Metropolitana de Guadalajara, incluidos los que la Secretaría entregó a Google para la publicación de 275 rutas en Google Maps anunciada en julio de 2026. Solicito el archivo .zip tal como se generó.
+
+2. Datos en tiempo real. La dirección (URL) de los feeds GTFS-Realtime (Vehicle Positions, Trip Updates y Service Alerts) de las rutas que ya cuentan con localización GPS, y las condiciones para acceder a ellos. Si no existe una dirección pública, solicito saber a qué personas físicas o morales se les ha dado acceso y bajo qué condiciones.
+
+3. Convenio con Ualabee. Copia en versión pública del convenio, contrato o instrumento jurídico celebrado con Ualabee (o la razón social que corresponda) para la digitalización de rutas y la localización en tiempo real, con sus anexos técnicos, monto, vigencia y las cláusulas sobre propiedad, licencia y uso de los datos generados.
+
+4. Propiedad y apertura de los datos. Documento que indique quién es titular de los datos de rutas, paradas, horarios y posiciones GPS generados en ese proyecto, y si la Secretaría tiene previsto publicarlos como datos abiertos en datos.jalisco.gob.mx. En su caso, la fecha prevista.
+
+5. Cobertura del GPS. Relación de rutas y número de unidades que a la fecha de esta solicitud transmiten su ubicación en tiempo real.
+
+6. Licencia del GTFS publicado. La licencia de uso del conjunto «Actualización de rutas de transporte público colectivo y masivo en la Zona Metropolitana de Guadalajara» publicado en datos.jalisco.gob.mx (archivo gtfs_amg_20240312.zip), y la dirección vigente del portal, que el 14 de noviembre de 2026 no estaba disponible.
+
+Cabe señalar que la información del punto 1 ya está a disposición del público a través de terceros: el sitio https://treep.app/index/agency/35/BUS muestra 275 líneas de Mi Transporte, con identificadores, recorridos y paradas que coinciden con el formato del GTFS de la Secretaría y que incluyen rutas ausentes en la versión de 2024 publicada en datos.jalisco.gob.mx. Al haberse compartido con particulares que la difunden, no hay razón para no publicarla como dato abierto.
+
+Para los puntos 1, 2, 5 y 6 solicito la información en formato abierto y legible por máquina, conforme a los principios de datos abiertos que establece la ley. Si alguna parte se considera reservada o confidencial, solicito la versión pública del resto y la prueba de daño correspondiente.</textarea>
+<p><button type="button" data-copiar="t-setran">Copiar texto</button> <span class="msg" aria-live="polite"></span></p>
+
+<h3>Solicitud 2: SITEUR</h3>
+<p class="mute">Pide el GTFS de Mi Tren, Mi Macro y demás, y los datos en tiempo real que usa la app «Mi Ruta».</p>
+<textarea id="t-siteur" readonly aria-label="Texto de la solicitud a SITEUR">Con fundamento en el artículo 6.º de la Constitución Política de los Estados Unidos Mexicanos y en la Ley de Transparencia y Acceso a la Información Pública del Estado de Jalisco y sus Municipios, solicito:
+
+1. Los archivos GTFS (estáticos) de las rutas y líneas que opera o supervisa SITEUR (Mi Tren, Mi Macro Calzada, Mi Macro Periférico, Si Tren, alimentadoras y demás), en su versión más reciente.
+2. La documentación técnica de la fuente de posiciones en tiempo real que alimenta la aplicación «Mi Ruta» (miruta.siteur.gob.mx): formato, frecuencia de actualización y rutas cubiertas.
+3. Si existe o se prevé un feed público en formato GTFS-Realtime (Vehicle Positions, Trip Updates, Service Alerts) con esa información, su dirección y condiciones de uso; si no existe, las razones y si está previsto publicarlo como dato abierto.
+4. El contrato o convenio con el proveedor del sistema de localización y de la aplicación «Mi Ruta», en versión pública, incluidas las cláusulas sobre titularidad y licencia de los datos.
+
+Solicito los puntos 1 y 3 en formato abierto y legible por máquina. Si alguna parte se considera reservada o confidencial, solicito la versión pública del resto y la prueba de daño correspondiente.</textarea>
+<p><button type="button" data-copiar="t-siteur">Copiar texto</button> <span class="msg" aria-live="polite"></span></p>
+
+<h2 id="registro">Registra tu solicitud (opcional)</h2>
+<p>Solo pedimos el sujeto obligado, el folio y la fecha. <b>No pedimos nombre, correo ni nada personal.</b> Los folios ya son públicos en la PNT. No guardamos tu IP.</p>
+<form id="f-alta" class="caja">
+  <div class="fila">
+    <label>Sujeto obligado
+      <select name="sujeto" required>
+        <option value="setran">SETRAN (Secretaría de Transporte)</option>
+        <option value="siteur">SITEUR</option>
+      </select>
+    </label>
+    <label>Folio
+      <input name="folio" required inputmode="numeric" pattern="[0-9]{10,20}" maxlength="20" placeholder="Solo números" title="Solo números, de 10 a 20">
+    </label>
+    <label>Fecha de envío
+      <input name="fecha" type="date" required min="2026-11-01">
+    </label>
+  </div>
+  <div><button>Registrar</button></div>
+  <p class="msg" aria-live="polite"></p>
+</form>
+
+<h3>¿Ya te respondieron?</h3>
+<p>Actualiza el estado de una solicitud registrada.</p>
+<form id="f-estado" class="caja">
+  <div class="fila">
+    <label>Folio
+      <input name="folio" required inputmode="numeric" pattern="[0-9]{10,20}" maxlength="20" placeholder="Solo números">
+    </label>
+    <label>Estado
+      <select name="estado">
+        <option value="entregada">Entregada</option>
+        <option value="parcial">Entregada parcial</option>
+        <option value="negada">Negada</option>
+        <option value="prorroga">Prórroga</option>
+        <option value="sin-respuesta">Sin respuesta</option>
+      </select>
+    </label>
+    <label>Fecha de la respuesta
+      <input name="fecha" type="date" min="2026-11-01">
+    </label>
+  </div>
+  <div><button>Actualizar</button></div>
+  <p class="msg" aria-live="polite"></p>
+</form>
+
+<h2>Solicitudes registradas</h2>
+<div id="resumen"><p class="mute">Cargando…</p></div>
+<p class="mute">Datos abiertos: <a href="/api/solicitudes.csv">CSV</a> · <a href="/api/solicitudes">JSON</a>. Lo registra la propia ciudadanía; verifica cada folio en la PNT.</p>
+
+<h2>Si la niegan o no responden: recurso de revisión</h2>
+<p>Si no te contestan a tiempo, la respuesta está incompleta, no es lo que pediste o te la niegan, puedes presentar un <b>recurso de revisión</b> desde la misma PNT, en la sección de tu solicitud (<b>Medios de impugnación</b> o «Recurso de revisión»). <b>Hay un plazo para presentarlo: revisa el plazo en la PNT.</b> Adapta el texto según tu caso y borra lo que no aplique.</p>
+<textarea id="t-recurso" readonly aria-label="Plantilla de recurso de revisión">Presento recurso de revisión respecto de la solicitud de acceso a la información con folio [FOLIO], presentada el [FECHA] ante [SUJETO OBLIGADO], por los siguientes motivos (dejar los que apliquen):
+
+- Falta de respuesta dentro del plazo legal.
+- Negativa a entregar la información solicitada.
+- Entrega de información incompleta: no se respondieron los puntos [NÚMEROS].
+- Entrega de información que no corresponde con lo solicitado.
+- Entrega en un formato no accesible o no legible por máquina, distinto al solicitado (archivos digitales en su formato original).
+- Clasificación de la información como reservada o confidencial sin la prueba de daño correspondiente ni la versión pública.
+
+La información solicitada es de interés público: se refiere a las rutas, horarios y ubicación del transporte público, y ya fue compartida con particulares (Google y el proveedor del sistema de localización), por lo que no existe razón para negarla a la ciudadanía. Los datos de transporte deben publicarse en formato abierto conforme a la ley.
+
+Solicito que se revoque o modifique la respuesta y se ordene al sujeto obligado entregar la información completa en el formato solicitado.</textarea>
+<p><button type="button" data-copiar="t-recurso">Copiar texto</button> <span class="msg" aria-live="polite"></span></p>
+<p>Después, actualiza el estado de tu folio arriba.</p>
+
+</main>
+<footer>
+  Proyecto cívico no oficial, sin relación con el Gobierno de Jalisco. <a href="https://github.com/tocaltepetl/rutas-gdl">Código</a>.
+  Contamos visitas con Cloudflare Web Analytics, sin cookies ni datos personales
+  (<a href="https://github.com/tocaltepetl/.github/blob/main/docs/privacidad.md">cómo cuidamos tu privacidad</a>).
+</footer>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const hoyLocal = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
+document.querySelectorAll('input[type=date]').forEach(i => { i.max = hoyLocal(); });
+$('#f-alta [name=fecha]').value = hoyLocal();
+
+document.querySelectorAll('[data-copiar]').forEach(b => b.addEventListener('click', async () => {
+  const t = document.getElementById(b.dataset.copiar), msg = b.nextElementSibling;
+  try { await navigator.clipboard.writeText(t.value); }
+  catch { t.focus(); t.select(); document.execCommand('copy'); }
+  msg.textContent = 'Copiado. Pégalo en la PNT.'; msg.className = 'msg ok';
+}));
+
+async function enviar(form, url, method, body) {
+  const msg = form.querySelector('.msg');
+  msg.textContent = 'Enviando…'; msg.className = 'msg';
+  try {
+    const r = await fetch(url, { method, headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || 'error ' + r.status);
+    msg.textContent = 'Listo, gracias.'; msg.className = 'msg ok';
+    cargar();
+  } catch (e) { msg.textContent = 'No se pudo: ' + e.message; msg.className = 'msg err'; }
+}
+$('#f-alta').addEventListener('submit', e => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  enviar(e.target, '/api/solicitudes', 'POST', { sujeto: f.get('sujeto'), folio: f.get('folio').trim(), fecha: f.get('fecha') });
+});
+$('#f-estado').addEventListener('submit', e => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  enviar(e.target, '/api/solicitudes/' + encodeURIComponent(f.get('folio').trim()) + '/estado', 'POST', { estado: f.get('estado'), fecha: f.get('fecha') });
+});
+
+async function cargar() {
+  const box = $('#resumen');
+  try {
+    const r = await fetch('/api/solicitudes');
+    if (!r.ok) throw 0;
+    const d = await r.json();
+    if (!d.total) { box.innerHTML = '<p class="mute">Todavía no hay solicitudes registradas. ¡Sé la primera persona!</p>'; return; }
+    const est = Object.keys(d.estados);
+    const sr = d.sinRespuesta;
+    let h = `<div class="cifras"><div><b>${d.total}</b>registradas</div><div><b>${sr.n}</b>sin respuesta o en prórroga</div>` +
+      `<div><b>${sr.mediana ?? '–'}</b>días sin respuesta (mediana)</div><div><b>${sr.maximo ?? '–'}</b>días sin respuesta (máximo)</div></div>`;
+    h += '<h3>Por sujeto obligado y estado</h3><div class="tabla"><table><tr><th></th>' + est.map(e => `<th class="n">${esc(d.estados[e])}</th>`).join('') + '</tr>';
+    for (const [k, nom] of Object.entries(d.sujetos)) h += `<tr><th>${esc(nom)}</th>` + est.map(e => `<td class="n">${d.totales[k][e]}</td>`).join('') + '</tr>';
+    h += '</table></div><h3>Folios</h3><div class="tabla"><table><tr><th>Folio</th><th>Sujeto</th><th>Enviada</th><th>Estado</th><th class="n">Días sin respuesta</th></tr>';
+    for (const s of d.solicitudes.slice().reverse()) h += `<tr><td>${esc(s.folio)}</td><td>${esc(d.sujetos[s.sujeto])}</td><td>${esc(s.fecha)}</td>` +
+      `<td class="e-${esc(s.estado)}">${esc(d.estados[s.estado])}${s.fecha_estado ? ' (' + esc(s.fecha_estado) + ')' : ''}</td><td class="n">${s.dias_sin_respuesta ?? ''}</td></tr>`;
+    box.innerHTML = h + '</table></div>';
+  } catch { box.innerHTML = '<p class="mute">No se pudo cargar el registro. Intenta más tarde.</p>'; }
+}
+cargar();
+</script>
+<!-- Cloudflare Web Analytics: visitas sin cookies ni datos personales -->
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "05f1e13089164a0b824bb84ea67449e1"}'></script>
+</body>
+</html>

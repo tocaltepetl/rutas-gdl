@@ -1,13 +1,39 @@
-// Configuración de Cloudflare Workers: solo archivos estáticos de `public/`.
+// Configuración de Cloudflare Workers. Sirve los archivos estáticos de `public/`
+// y un Worker pequeño solo para /api/* (registro de solicitudes de transparencia).
 // Lo usan los workflows de GitHub Actions; no hace falta correrlo a mano.
-// Ver docs/decisiones.md («Despliegue»).
+// Ver docs/decisiones.md («Despliegue» y «Registro de solicitudes»).
 {
 	"$schema": "./node_modules/wrangler/config-schema.json",
 	"name": "rutas-gdl",
+	"main": "src/worker.js",
 	"compatibility_date": "2026-11-10",
 	"assets": {
-		"directory": "./public"
+		"directory": "./public", // solo esta carpeta se publica
+		"binding": "ASSETS",
+		"run_worker_first": [
+			"/api/*"
+		] // el resto no pasa por el Worker
 	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "rutas-gdl",
+			"database_id": "da2497db-2901-4e55-b636-9cd35e2e1124",
+			"migrations_dir": "migrations"
+		}
+	],
+	"ratelimits": [
+		// Contra spam en las escrituras de /api/solicitudes: 10 por minuto por IP
+		// (la IP no se guarda; ver docs/decisiones.md).
+		{
+			"name": "LIMITE",
+			"namespace_id": "1002",
+			"simple": {
+				"limit": 10,
+				"period": 60
+			}
+		}
+	],
 	"routes": [
 		{ "pattern": "rutasgdl.tocaltepetl.org", "custom_domain": true }
 	]
