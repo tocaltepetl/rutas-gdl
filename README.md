@@ -1,20 +1,32 @@
 # Rutas de camiones GDL
 
-> **English:** free, ad-free map of public transit routes in the Guadalajara
-> metropolitan area, built from the Jalisco government's open GTFS data. A
-> static page, no backend, no accounts. Contributions welcome — see
+> **English:** an unofficial watchdog of Guadalajara's public transit data.
+> SETRAN gave Google the 2026 routes but only publishes 2024 data as open data.
+> This site shows the gap, helps people request the data via transparency
+> laws, and proves what can be built with open data alone. Contributions
+> welcome — see
 > [CONTRIBUTING](https://github.com/tocaltepetl/.github/blob/main/CONTRIBUTING.md)
 > (in Spanish; English is fine in issues and PRs).
 
-Observatorio **no oficial** de las rutas de transporte público de la zona
-metropolitana de Guadalajara (Mi Transporte, Mi Macro, Mi Tren, Si Tren y Mi
-Transporte Eléctrico): un mapa libre y sin anuncios, el estado de los datos
-abiertos y análisis de la red.
+**SETRAN entregó a Google Maps las rutas de 2026, pero como datos abiertos solo
+publica las de marzo de 2024. Y el tiempo real no se publica.**
 
-La información pública de transporte debería llegar a la ciudadanía sin
-depender de plataformas privadas. Este proyecto usa solo datos abiertos (GTFS
-oficial y OpenStreetMap) y busca que SETRAN y SITEUR publiquen los suyos,
-incluido el tiempo real. Ver [decisiones](docs/decisiones.md#propósito-2026-11-14).
+Este proyecto no oficial busca que la información de transporte público de la
+zona metropolitana de Guadalajara (Mi Transporte, Mi Macro, Mi Tren, Si Tren y
+Mi Transporte Eléctrico) sea de todos y no solo de las plataformas privadas:
+
+1. **Muestra qué falta**: qué datos son abiertos, cuáles están cerrados y qué
+   tan viejos son ([estado de los datos](https://rutasgdl.tocaltepetl.org/datos.html)).
+2. **Te ayuda a pedirlos**: una guía para solicitar por transparencia a SETRAN
+   y SITEUR el GTFS y el tiempo real, más un registro público y anónimo de
+   folios ([pide los datos](https://rutasgdl.tocaltepetl.org/solicitar.html)).
+3. **Demuestra lo que se puede hacer con datos abiertos**: un mapa de la red
+   completa y análisis de cobertura y frecuencias, todo hecho solo con el GTFS
+   oficial y OpenStreetMap.
+
+**Para quién:** periodistas, colectivos de movilidad, academia y cualquier
+persona que quiera exigir mejores datos. Para planear un viaje, Google Maps o
+Mi Ruta te sirven mejor. Ver [decisiones](docs/decisiones.md#propósito-2026-11-14).
 
 ## Qué muestra
 - Las rutas con su trazo y color oficial sobre OpenStreetMap.
