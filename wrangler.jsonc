@@ -1,0 +1,14 @@
+// Configuración de Cloudflare Workers: solo archivos estáticos de `public/`.
+// Lo usan los workflows de GitHub Actions; no hace falta correrlo a mano.
+// Ver docs/decisiones.md («Despliegue»).
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "rutas-gdl",
+	"compatibility_date": "2026-11-10",
+	"assets": {
+		"directory": "./public"
+	},
+	"routes": [
+		{ "pattern": "rutasgdl.tocaltepetl.org", "custom_domain": true }
+	]
+}

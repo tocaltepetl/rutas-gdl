@@ -1,0 +1,59 @@
+# Rutas de camiones GDL
+
+> **English:** free, ad-free map of public transit routes in the Guadalajara
+> metropolitan area, built from the Jalisco government's open GTFS data. A
+> static page, no backend, no accounts. Contributions welcome — see
+> [CONTRIBUTING](https://github.com/tocaltepetl/.github/blob/main/CONTRIBUTING.md)
+> (in Spanish; English is fine in issues and PRs).
+
+Mapa **no oficial**, libre y sin anuncios de las rutas de transporte público de
+la zona metropolitana de Guadalajara: Mi Transporte, Mi Macro, Mi Tren, Si Tren
+y Mi Transporte Eléctrico.
+
+## Qué muestra
+- Las rutas con su trazo y color oficial sobre OpenStreetMap.
+- Búsqueda por número, nombre o destino, y filtro por sistema.
+- Al elegir una ruta se resalta y se puede compartir el enlace (`#ruta=C01`).
+- Al tocar el mapa: las rutas con alguna parada a menos de 300 m. El punto no
+  sale del navegador.
+- Frecuencia aproximada en hora pico, según el GTFS.
+- Conteo de visitas con Cloudflare Web Analytics (sin cookies ni datos
+  personales). Ver la
+  [política de privacidad común](https://github.com/tocaltepetl/.github/blob/main/docs/privacidad.md).
+
+## Datos
+GTFS de SETRAN Jalisco publicado en
+[datos.jalisco.gob.mx](https://datos.jalisco.gob.mx/dataset/actualizacion-de-rutas-de-transporte-publico-colectivo-y-masivo-en-la-zona-metropolitana-de)
+(`gtfs_amg_20240312.zip`, marzo de 2024). Como el portal no respondía, se tomó
+la copia de la [Mobility Database (mdb-2366)](https://mobilitydatabase.org/feeds/gtfs/mdb-2366).
+
+- 275 rutas en el GTFS; 247 tienen trazo y son las que aparecen en el mapa.
+- Son datos de 2024: algunas rutas pudieron cambiar. SETRAN tiene una versión
+  de 2026 en Google Maps que no ha publicado como datos abiertos.
+
+Para regenerar `public/data/`:
+
+```sh
+curl -L -o /tmp/gtfs.zip https://files.mobilitydatabase.org/mdb-2366/latest.zip
+unzip -o /tmp/gtfs.zip -d /tmp/gtfs
+python3 -I scripts/gtfs_a_geojson.py /tmp/gtfs public/data
+```
+
+## Uso local
+
+```sh
+python3 -m http.server 8765 --directory public
+```
+
+## Contribuir
+Issues y PRs bienvenidos. Lee el
+[CONTRIBUTING común](https://github.com/tocaltepetl/.github/blob/main/CONTRIBUTING.md)
+y el [código de conducta](https://github.com/tocaltepetl/.github/blob/main/CODE_OF_CONDUCT.md).
+
+## Licencia
+El código: [MIT](LICENSE). Los datos de rutas son de SETRAN Jalisco (licencia
+por confirmar en su portal); el mapa base es © colaboradores de OpenStreetMap.
+
+## Publicación
+Sitio: **https://rutasgdl.tocaltepetl.org** (Cloudflare Workers, solo archivos
+estáticos). Se publica desde GitHub Actions al liberar una versión.

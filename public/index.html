@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rutas de camiones GDL</title>
+<meta name="description" content="Mapa libre y sin anuncios de las rutas de transporte público de la zona metropolitana de Guadalajara, con datos abiertos del Gobierno de Jalisco.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root { --bg:#fff; --fg:#1d1d1f; --mute:#666; --line:#ddd; --acc:#0b6bcb; --card:#f6f6f7; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#151517; --fg:#eee; --mute:#aaa; --line:#333; --acc:#5aa6ff; --card:#1f1f22; } }
+  * { box-sizing:border-box; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--fg); font:15px/1.4 system-ui, sans-serif; }
+  body { display:grid; grid-template-columns: 340px 1fr; height:100dvh; }
+  aside { display:flex; flex-direction:column; border-right:1px solid var(--line); min-height:0; }
+  header { padding:14px 16px 8px; }
+  h1 { font-size:18px; margin:0 0 4px; }
+  header p { margin:0; color:var(--mute); font-size:13px; }
+  #buscar { margin:8px 16px; padding:9px 11px; font:inherit; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--fg); }
+  #filtros { display:flex; gap:6px; flex-wrap:wrap; padding:0 16px 8px; }
+  #filtros button { font:inherit; font-size:12px; padding:3px 9px; border-radius:99px; border:1px solid var(--line); background:none; color:var(--fg); cursor:pointer; }
+  #filtros button[aria-pressed=true] { background:var(--acc); border-color:var(--acc); color:#fff; }
+  #aviso { margin:0 16px 8px; font-size:13px; color:var(--mute); }
+  #lista { list-style:none; margin:0; padding:0; overflow:auto; flex:1; border-top:1px solid var(--line); }
+  #lista li { padding:8px 16px; border-bottom:1px solid var(--line); cursor:pointer; display:flex; gap:10px; align-items:center; }
+  #lista li:hover, #lista li.sel { background:var(--card); }
+  .chip { flex:none; min-width:46px; text-align:center; font-weight:600; font-size:13px; padding:2px 6px; border-radius:6px; color:#fff; }
+  .nom { font-size:13px; } .nom small { display:block; color:var(--mute); }
+  footer { padding:10px 16px; font-size:12px; color:var(--mute); border-top:1px solid var(--line); }
+  footer a { color:var(--acc); }
+  #mapa { min-height:0; }
+  @media (max-width: 720px) {
+    body { grid-template-columns:1fr; grid-template-rows: 55dvh 1fr; }
+    #mapa { grid-row:1; } aside { grid-row:2; border-right:0; border-top:1px solid var(--line); }
+  }
+</style>
+</head>
+<body>
+<aside>
+  <header>
+    <h1>Rutas de camiones GDL</h1>
+    <p>Busca una ruta o toca el mapa para ver cuáles pasan cerca.</p>
+  </header>
+  <input id="buscar" type="search" placeholder="Ruta, número o destino (p. ej. C01, Tlaquepaque)" aria-label="Buscar ruta">
+  <div id="filtros"></div>
+  <p id="aviso"></p>
+  <ul id="lista"></ul>
+  <footer>
+    Datos: <a href="https://datos.jalisco.gob.mx/dataset/actualizacion-de-rutas-de-transporte-publico-colectivo-y-masivo-en-la-zona-metropolitana-de">GTFS de SETRAN Jalisco</a> (marzo 2024; puede haber rutas que ya cambiaron).
+    Mapa © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>.
+    Proyecto cívico no oficial
+    (<a class="ver" href="https://github.com/tocaltepetl/rutas-gdl/releases" target="_blank" rel="noopener">dev</a>). <!-- version: se reemplaza al desplegar --> Contamos visitas con Cloudflare Web Analytics, sin cookies ni datos personales
+    (<a href="https://github.com/tocaltepetl/.github/blob/main/docs/privacidad.md">cómo cuidamos tu privacidad</a>).
+  </footer>
+</aside>
+<div id="mapa"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const mapa = L.map('mapa', { preferCanvas: true }).setView([20.67, -103.35], 12);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19, attribution: '© OpenStreetMap'
+}).addTo(mapa);
+
+const $ = s => document.querySelector(s);
+let rutas = [], paradas = [], capas = new Map(), seleccion = null, filtro = 'Todas', cerca = null, marca = null;
+
+const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+Promise.all([fetch('data/rutas.geojson').then(r => r.json()), fetch('data/paradas.geojson').then(r => r.json())])
+.then(([r, p]) => {
+  paradas = p.features;
+  // agrupar trazos por ruta
+  const porRuta = new Map();
+  for (const f of r.features) {
+    const k = f.properties.id;
+    if (!porRuta.has(k)) porRuta.set(k, { ...f.properties, trazos: [] });
+    porRuta.get(k).trazos.push(f);
+  }
+  rutas = [...porRuta.values()].sort((a, b) => a.corto.localeCompare(b.corto, 'es', { numeric: true }));
+  for (const ru of rutas) {
+    const capa = L.geoJSON(ru.trazos, { style: () => estilo(ru, false) })
+      .on('click', e => { L.DomEvent.stop(e); elegir(ru.id); });
+    capa.addTo(mapa); capas.set(ru.id, capa);
+    ru.texto = norm(`${ru.corto} ${ru.nombre} ${ru.agencia} ${ru.trazos.map(t => t.properties.destino).join(' ')}`);
+  }
+  const agencias = ['Todas', ...new Set(rutas.map(r => r.agencia))];
+  $('#filtros').innerHTML = agencias.map(a => `<button aria-pressed="${a === filtro}">${a}</button>`).join('');
+  $('#filtros').onclick = e => { if (e.target.tagName !== 'BUTTON') return;
+    filtro = e.target.textContent;
+    for (const b of $('#filtros').children) b.setAttribute('aria-pressed', b.textContent === filtro);
+    pintar(); };
+  leerHash(); pintar();
+});
+
+function estilo(ru, activa) {
+  const atenuada = seleccion && !activa;
+  return { color: ru.color, weight: activa ? 6 : 2, opacity: atenuada ? 0.08 : (activa ? 0.95 : 0.45) };
+}
+
+function visibles() {
+  const q = norm($('#buscar').value.trim());
+  return rutas.filter(r => (filtro === 'Todas' || r.agencia === filtro)
+    && (!q || r.texto.includes(q)) && (!cerca || cerca.has(r.corto)));
+}
+
+function pintar() {
+  const vis = visibles(), ids = new Set(vis.map(r => r.id));
+  for (const ru of rutas) {
+    const c = capas.get(ru.id);
+    if (ids.has(ru.id) || ru.id === seleccion) { c.addTo(mapa); c.setStyle(estilo(ru, ru.id === seleccion)); }
+    else c.remove();
+  }
+  if (seleccion) capas.get(seleccion).bringToFront();
+  $('#aviso').textContent = cerca
+    ? `${vis.length} rutas pasan a menos de 300 m del punto. Toca el mapa en otro lado o borra el filtro con Esc.`
+    : `${vis.length} de ${rutas.length} rutas`;
+  $('#lista').innerHTML = vis.map(r => {
+    const f = r.frec_min ? ` · cada ~${r.frec_min} min en hora pico` : '';
+    return `<li data-id="${r.id}" class="${r.id === seleccion ? 'sel' : ''}">
+      <span class="chip" style="background:${r.color}">${r.corto}</span>
+      <span class="nom">${r.nombre}<small>${r.agencia}${f}</small></span></li>`;
+  }).join('');
+}
+
+function elegir(id) {
+  seleccion = seleccion === id ? null : id;
+  pintar();
+  if (seleccion) {
+    mapa.fitBounds(capas.get(id).getBounds(), { padding: [30, 30] });
+    history.replaceState(null, '', '#ruta=' + encodeURIComponent(id));
+    $(`#lista li[data-id="${CSS.escape(id)}"]`)?.scrollIntoView({ block: 'nearest' });
+  } else history.replaceState(null, '', location.pathname);
+}
+
+function leerHash() {
+  const m = location.hash.match(/ruta=([^&]+)/);
+  if (m && capas.has(decodeURIComponent(m[1]))) elegir(decodeURIComponent(m[1]));
+}
+
+$('#lista').onclick = e => { const li = e.target.closest('li'); if (li) elegir(li.dataset.id); };
+$('#buscar').oninput = pintar;
+
+mapa.on('click', e => {
+  const p = e.latlng, set = new Set();
+  for (const s of paradas) {
+    const [lon, lat] = s.geometry.coordinates;
+    if (mapa.distance(p, [lat, lon]) <= 300) s.properties.rutas.forEach(r => set.add(r));
+  }
+  cerca = set; seleccion = null;
+  marca?.remove();
+  marca = L.circle(p, { radius: 300, color: '#0b6bcb', weight: 1, fillOpacity: 0.08 }).addTo(mapa);
+  pintar();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { cerca = null; seleccion = null; marca?.remove(); marca = null; pintar(); }
+});
+</script>
+<!-- Cloudflare Web Analytics: visitas sin cookies ni datos personales -->
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "05f1e13089164a0b824bb84ea67449e1"}'></script>
+</body>
+</html>
