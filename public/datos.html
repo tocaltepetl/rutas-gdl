@@ -48,11 +48,15 @@
     td::before { content:attr(data-t) ": "; color:var(--mute); font-size:12px; }
     td:first-child::before { content:none; } td:first-child { font-weight:600; }
   }
+  .secciones { display:flex; gap:4px; flex-wrap:wrap; padding:8px 12px; border-bottom:1px solid var(--line); background:var(--card); font:14px/1.3 system-ui, sans-serif; }
+  .secciones a { padding:5px 10px; border-radius:99px; text-decoration:none; color:var(--fg); }
+  .secciones a:hover { background:var(--bg); }
+  .secciones a[aria-current=page] { background:var(--acc); color:var(--on-acc); font-weight:600; }
 </style>
 </head>
 <body>
+<nav class="secciones" aria-label="Secciones"><a href="./">Mapa</a><a href="solicitar.html">Pide los datos</a><a href="datos.html" aria-current="page">Estado de los datos</a><a href="analisis.html">Análisis</a></nav>
 <main>
-<nav><a href="./">← Mapa de rutas</a> · <a href="analisis.html">Análisis</a></nav>
 <h1><img src="favicon.svg" alt="" width="26" height="26" style="vertical-align:-5px;margin-right:6px">Estado de los datos</h1>
 <p class="sub">Qué información del transporte público de la zona metropolitana de Guadalajara existe,
 cuál puede usar cualquier persona y cuál está cerrada. Revisado el <time datetime="2026-11-14">14 de noviembre de 2026</time>.</p>

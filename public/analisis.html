@@ -51,11 +51,15 @@
   input[type=search] { font:inherit; padding:7px 10px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--fg); width:min(100%, 320px); margin:6px 0 10px; }
   details { margin:10px 0; } summary { cursor:pointer; color:var(--acc); }
   footer { margin-top:40px; font-size:13px; color:var(--mute); border-top:1px solid var(--line); padding-top:12px; }
+  .secciones { display:flex; gap:4px; flex-wrap:wrap; padding:8px 12px; border-bottom:1px solid var(--line); background:var(--card); font:14px/1.3 system-ui, sans-serif; }
+  .secciones a { padding:5px 10px; border-radius:99px; text-decoration:none; color:var(--fg); }
+  .secciones a:hover { background:var(--bg); }
+  .secciones a[aria-current=page] { background:var(--acc); color:var(--on-acc); font-weight:600; }
 </style>
 </head>
 <body>
+<nav class="secciones" aria-label="Secciones"><a href="./">Mapa</a><a href="solicitar.html">Pide los datos</a><a href="datos.html">Estado de los datos</a><a href="analisis.html" aria-current="page">Análisis</a></nav>
 <main>
-<nav><a href="./">← Mapa de rutas</a> · <a href="datos.html">Estado de los datos</a></nav>
 <h1><img src="favicon.svg" alt="" width="26" height="26" style="vertical-align:-5px;margin-right:6px">Análisis de la red</h1>
 <p class="sub">Qué tan cerca queda el camión, cada cuánto pasa y por dónde se amontonan las rutas, calculado solo con datos abiertos.</p>
 <p class="aviso"><b>Ojo: son datos de marzo de 2024.</b> Es el último GTFS que SETRAN publicó como dato abierto. Desde entonces hay rutas nuevas, divididas o
