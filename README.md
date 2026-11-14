@@ -23,6 +23,10 @@ incluido el tiempo real. Ver [decisiones](docs/decisiones.md#propósito-2026-11-
 - Al tocar el mapa: las rutas con alguna parada a menos de 300 m. El punto no
   sale del navegador.
 - Frecuencia aproximada en hora pico, según el GTFS.
+- [Pide los datos](https://rutasgdl.tocaltepetl.org/solicitar.html): guía para
+  pedir por transparencia a SETRAN y SITEUR sus datos (GTFS y tiempo real), y
+  registro público y anónimo de folios (sin nombre ni correo; la IP no se
+  guarda). Dato abierto en `/api/solicitudes.csv` y `/api/solicitudes`.
 - Conteo de visitas con Cloudflare Web Analytics (sin cookies ni datos
   personales). Ver la
   [política de privacidad común](https://github.com/tocaltepetl/.github/blob/main/docs/privacidad.md).
@@ -51,6 +55,13 @@ python3 -I scripts/gtfs_a_geojson.py /tmp/gtfs public/data datos/lineas-treep-mi
 python3 -m http.server 8765 --directory public
 ```
 
+Con el Worker y la base D1 local (registro de solicitudes):
+
+```sh
+npx -y wrangler@4.160.1 d1 migrations apply DB --local
+npx -y wrangler@4.160.1 dev --local
+```
+
 ## Contribuir
 Issues y PRs bienvenidos. Lee el
 [CONTRIBUTING común](https://github.com/tocaltepetl/.github/blob/main/CONTRIBUTING.md)
@@ -61,5 +72,5 @@ El código: [MIT](LICENSE). Los datos de rutas son de SETRAN Jalisco (licencia
 por confirmar en su portal); el mapa base es © colaboradores de OpenStreetMap.
 
 ## Publicación
-Sitio: **https://rutasgdl.tocaltepetl.org** (Cloudflare Workers, solo archivos
-estáticos). Se publica desde GitHub Actions al liberar una versión.
+Sitio: **https://rutasgdl.tocaltepetl.org** (Cloudflare Workers: archivos
+estáticos y un Worker para `/api/*` con D1). Se publica desde GitHub Actions al liberar una versión.

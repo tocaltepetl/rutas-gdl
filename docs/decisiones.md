@@ -68,3 +68,35 @@ licencia). Solo se guarda la lista de identificadores en
 líneas de Mi Transporte que no están en ella; la página muestra un aviso.
 De las 21, solo 5 tienen trazo en el mapa (C05, C104, C117, C138, T09-O).
 Las nuevas no se pueden mostrar hasta tener el GTFS actual.
+
+## 2026-11-14 — Registro de solicitudes
+`public/solicitar.html` guía a la ciudadanía para enviar en la PNT las dos
+solicitudes de `docs/solicitudes-transparencia.md` (solo el «Texto para
+pegar», con botón de copiar) y trae una plantilla de recurso de revisión sin
+plazos inventados («revisa el plazo en la PNT»). La página no envía nada por
+la persona.
+
+Tras enviarla, la persona puede registrar **sujeto obligado, folio y fecha**,
+y después el estado de la respuesta. Un Worker mínimo (`src/worker.js`, solo
+`/api/*` vía `run_worker_first`) con D1 (`rutas-gdl`, `migrations/`):
+- `POST /api/solicitudes`: folio de 10 a 20 números, fecha entre 2026-11-01 y
+  hoy (hora de Guadalajara); un folio solo se registra una vez (409).
+- `POST`/`PATCH /api/solicitudes/:folio/estado`: sin respuesta, entregada,
+  entregada parcial, negada o prórroga, con fecha (entre el envío y hoy).
+- `GET /api/solicitudes` (totales por sujeto y estado, mediana y máximo de
+  días sin respuesta, lista de folios) y `GET /api/solicitudes.csv`, ambos con
+  CORS abierto como datos abiertos.
+
+**Privacidad:** no se piden nombre, correo ni texto libre; los folios ya son
+públicos en la PNT. Límite de 20 escrituras por día por IP con una llave
+SHA-256(sal + día + IP) en la tabla `limites`; la IP no se guarda y las llaves
+de días anteriores se borran en cada escritura. La sal es el secreto opcional
+`SAL` (sin él, la llave de una IPv4 se podría revertir por fuerza bruta con
+acceso a la base).
+
+**Límites conocidos:** cualquiera que conozca un folio puede cambiar su
+estado (no hay cuentas, a propósito); los datos los captura la ciudadanía y
+hay que verificarlos en la PNT. **Pendiente:** crear la base
+(`wrangler d1 create rutas-gdl`), poner su id en `wrangler.jsonc` y definir
+`SAL` con `wrangler secret put SAL`. Las migraciones se aplican en
+`release.yml` antes de desplegar.
