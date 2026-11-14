@@ -68,3 +68,35 @@ licencia). Solo se guarda la lista de identificadores en
 líneas de Mi Transporte que no están en ella; la página muestra un aviso.
 De las 21, solo 5 tienen trazo en el mapa (C05, C104, C117, C138, T09-O).
 Las nuevas no se pueden mostrar hasta tener el GTFS actual.
+
+## 2026-11-14 — reportes y rutas de OpenStreetMap
+
+### «Reportar un cambio en esta ruta» con notas de OSM
+**Opciones:** formulario propio con backend (requiere guardar datos y moderar),
+issues de GitHub (requiere cuenta), notas de OpenStreetMap.
+**Elegida:** notas de OSM (`POST /api/0.6/notes.json`): anónimas, sin cuenta,
+públicas, y quien mapea en OSM las ve y puede corregir el mapa. La persona
+marca el punto y elige un motivo; antes de enviar se muestra que será una nota
+PÚBLICA y anónima, con el texto exacto (ruta, sistema, motivo, comentario y
+`#rutasgdl`). Solo se envían ese punto y ese texto, nunca la ubicación del
+dispositivo. Opcionalmente se muestran las notas abiertas con `#rutasgdl` de
+la zona visible (desactivado por defecto: no se consulta a OSM sin que la
+persona lo pida). `?osm=dev` usa `master.apis.dev.openstreetmap.org` para
+probar sin crear notas reales. La API de OSM responde con CORS abierto; no hay
+CSP en el sitio (si se agrega: `connect-src api.openstreetmap.org
+master.apis.dev.openstreetmap.org`).
+
+### Rutas de OpenStreetMap que faltan en el GTFS
+`scripts/osm_rutas.py` consulta Overpass y agrega a `public/data/rutas_osm.geojson`
+solo las rutas cuyo `ref` no está en el GTFS (por `route_id`, por clave corta
+única, y `TL-n`/`ST-Ln` de OSM ↔ `MT_Ln`/`ST_Ln` del GTFS), y las del GTFS sin
+trazo que sí lo tengan en OSM. Se marcan «Fuente: OpenStreetMap
+(colaborativo)» con línea discontinua. Resultado del 2026-11-14: solo 2 rutas
+(MP-T04 y la Línea 4 del tren); casi todas las relaciones de la zona,
+importadas en 2022, tienen paradas pero no las calles del recorrido. Detalle en
+`datos/comparacion-osm.md`.
+
+**Licencia:** los datos de OSM son © colaboradores de OpenStreetMap bajo ODbL;
+`rutas_osm.geojson` es una base de datos derivada y se publica bajo ODbL
+(atribución visible en el mapa y en el pie). El GTFS no se mezcla en el mismo
+archivo.

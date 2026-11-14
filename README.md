@@ -45,6 +45,23 @@ unzip -o /tmp/gtfs.zip -d /tmp/gtfs
 python3 -I scripts/gtfs_a_geojson.py /tmp/gtfs public/data datos/lineas-treep-mi-transporte.txt
 ```
 
+### Rutas de OpenStreetMap
+Las rutas que están en OSM y no en el GTFS (hoy MP-T04 y la Línea 4 del tren)
+se muestran con línea discontinua y la marca «Fuente: OpenStreetMap». Son
+© colaboradores de OpenStreetMap y `public/data/rutas_osm.geojson` se publica
+bajo [ODbL](https://opendatacommons.org/licenses/odbl/). Para regenerarlo, y el
+reporte `datos/comparacion-osm.md` (después de generar `rutas.geojson`):
+
+```sh
+python3 -I scripts/osm_rutas.py /tmp/gtfs public/data
+```
+
+### Reportar cambios
+Con una ruta elegida, «Reportar un cambio en esta ruta» publica una nota
+**pública y anónima** en OpenStreetMap en el punto que marques, con
+`#rutasgdl` ([ver las abiertas](https://www.openstreetmap.org/api/0.6/notes/search?q=rutasgdl&closed=0)).
+Para probar sin crear notas reales: `?osm=dev` (servidor de pruebas de OSM).
+
 ## Uso local
 
 ```sh
