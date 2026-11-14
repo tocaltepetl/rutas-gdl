@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estado de los datos — Rutas GDL</title>
+<meta name="description" content="Qué datos de transporte público de la zona metropolitana de Guadalajara existen, cuáles son abiertos, qué tan viejos están y qué se ha pedido por transparencia.">
+<style>
+  :root { --bg:#fff; --fg:#1d1d1f; --mute:#666; --line:#ddd; --acc:#0b6bcb; --card:#f6f6f7;
+          --ok:#1a7f37; --mal:#b3261e; --med:#b25e00; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#151517; --fg:#eee; --mute:#aaa; --line:#333; --acc:#5aa6ff; --card:#1f1f22;
+          --ok:#5fd17a; --mal:#ff8a80; --med:#ffb454; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.5 system-ui, sans-serif; }
+  main { max-width:960px; margin:0 auto; padding:16px 16px 40px; }
+  nav { font-size:14px; } a { color:var(--acc); }
+  h1 { font-size:26px; margin:12px 0 4px; } h2 { font-size:20px; margin:32px 0 8px; }
+  .sub { color:var(--mute); margin:0 0 16px; }
+  .cifras { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:10px; margin:16px 0; }
+  .cifras div { background:var(--card); border-radius:10px; padding:12px; }
+  .cifras b { display:block; font-size:26px; line-height:1.1; }
+  .cifras span { font-size:13px; color:var(--mute); }
+  .tabla { overflow-x:auto; }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th, td { text-align:left; vertical-align:top; padding:9px 8px; border-bottom:1px solid var(--line); }
+  th { font-size:13px; color:var(--mute); font-weight:600; }
+  .si { color:var(--ok); font-weight:600; } .no { color:var(--mal); font-weight:600; } .medio { color:var(--med); font-weight:600; }
+  td small { display:block; color:var(--mute); }
+  .nota { background:var(--card); border-left:4px solid var(--acc); padding:10px 14px; border-radius:6px; }
+  footer { margin-top:40px; font-size:13px; color:var(--mute); border-top:1px solid var(--line); padding-top:12px; }
+  @media (max-width: 640px) {
+    table, thead, tbody, tr, th, td { display:block; } thead { display:none; }
+    tr { border-bottom:1px solid var(--line); padding:8px 0; } td { border:0; padding:3px 0; }
+    td::before { content:attr(data-t) ": "; color:var(--mute); font-size:12px; }
+    td:first-child::before { content:none; } td:first-child { font-weight:600; }
+  }
+</style>
+</head>
+<body>
+<main>
+<nav><a href="./">← Mapa de rutas</a> · <a href="analisis.html">Análisis</a></nav>
+<h1>Estado de los datos</h1>
+<p class="sub">Qué información del transporte público de la zona metropolitana de Guadalajara existe,
+cuál puede usar cualquier persona y cuál está cerrada. Revisado el <time datetime="2026-11-14">14 de noviembre de 2026</time>.</p>
+
+<div class="cifras">
+  <div><b>275</b><span>rutas en el último GTFS abierto (marzo de 2024)</span></div>
+  <div><b>247</b><span>de ellas traen trazo y aparecen en el mapa</span></div>
+  <div><b>21</b><span>rutas de Mi Transporte de 2024 que ya no aparecen en listas recientes</span></div>
+  <div><b>58</b><span>identificadores de ruta nuevos que no están en ningún dato abierto</span></div>
+</div>
+
+<h2>Qué existe y qué es abierto</h2>
+<p>«Abierto» quiere decir que cualquiera puede descargarlo y reutilizarlo sin pedir permiso ni pasar por una app privada.</p>
+<div class="tabla">
+<table>
+<thead><tr><th>Dato</th><th>¿Abierto?</th><th>¿Al día?</th><th>Quién lo tiene / dónde</th><th>Consultado</th></tr></thead>
+<tbody>
+<tr>
+  <td>GTFS SETRAN 2024<small>Rutas, paradas, trazos y frecuencias (archivo <code>gtfs_amg_20240312.zip</code>)</small></td>
+  <td data-t="¿Abierto?"><span class="si">Sí</span><small>Licencia por confirmar</small></td>
+  <td data-t="¿Al día?"><span class="no">No</span><small>Marzo de 2024</small></td>
+  <td data-t="Dónde"><a href="https://datos.jalisco.gob.mx/dataset/actualizacion-de-rutas-de-transporte-publico-colectivo-y-masivo-en-la-zona-metropolitana-de">datos.jalisco.gob.mx</a> (el portal no respondía);
+      copia en la <a href="https://mobilitydatabase.org/feeds/gtfs/mdb-2366">Mobility Database (mdb-2366)</a>. Es la base de este sitio.</td>
+  <td data-t="Consultado">2026-11-14<small>portal caído ese día</small></td>
+</tr>
+<tr>
+  <td>GTFS SETRAN 2026<small>La versión actual, con 275 rutas en Google Maps</small></td>
+  <td data-t="¿Abierto?"><span class="no">No</span></td>
+  <td data-t="¿Al día?"><span class="si">Sí</span></td>
+  <td data-t="Dónde">SETRAN lo entregó a Google; Ualabee/Treep muestra las mismas rutas en <a href="https://treep.app/index/agency/35/BUS">treep.app</a>. No se ha publicado como dato abierto.</td>
+  <td data-t="Consultado">2026-11-14</td>
+</tr>
+<tr>
+  <td>Tiempo real SETRAN<small>Ubicación GPS de los camiones de Mi Transporte</small></td>
+  <td data-t="¿Abierto?"><span class="no">No</span></td>
+  <td data-t="¿Al día?"><span class="si">Sí</span></td>
+  <td data-t="Dónde">Solo dentro de la app de Ualabee. No hay feed GTFS-Realtime público.</td>
+  <td data-t="Consultado">2026-11-14</td>
+</tr>
+<tr>
+  <td>Tiempo real SITEUR «Mi Ruta»<small>Mi Tren, Mi Macro y alimentadoras</small></td>
+  <td data-t="¿Abierto?"><span class="medio">Solo para ver</span></td>
+  <td data-t="¿Al día?"><span class="si">Sí</span></td>
+  <td data-t="Dónde">Web oficial <a href="https://miruta.siteur.gob.mx">miruta.siteur.gob.mx</a>; su API está cerrada a terceros, así que nadie más puede reutilizar los datos.</td>
+  <td data-t="Consultado">2026-11-14</td>
+</tr>
+<tr>
+  <td>OpenStreetMap<small>Rutas mapeadas por voluntarios</small></td>
+  <td data-t="¿Abierto?"><span class="si">Sí</span><small>Licencia ODbL</small></td>
+  <td data-t="¿Al día?"><span class="medio">En parte</span><small>54 relaciones editadas en 2026</small></td>
+  <td data-t="Dónde">251 relaciones de rutas de camión en la ZMG en <a href="https://www.openstreetmap.org/">openstreetmap.org</a>. Cualquiera puede mejorarlas: ver la <a href="https://github.com/tocaltepetl/rutas-gdl/blob/main/docs/mapeo.md">guía de mapeo</a>.</td>
+  <td data-t="Consultado">2026-11-14</td>
+</tr>
+<tr>
+  <td>Capas de IMEPLAN<small>Instituto Metropolitano de Planeación</small></td>
+  <td data-t="¿Abierto?"><span class="medio">Lo eran</span></td>
+  <td data-t="¿Al día?"><span class="no">Desconocido</span></td>
+  <td data-t="Dónde">Los enlaces de descarga de sus capas de transporte están rotos.</td>
+  <td data-t="Consultado">2026-11-14</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<h2>Rutas que pudieron cambiar</h2>
+<p>El sitio treep.app lista 275 líneas de Mi Transporte con los mismos identificadores que usa SETRAN, pero de una versión más nueva que la abierta.
+Comparando solo los identificadores (no copiamos sus trazos):</p>
+<ul>
+  <li><b>21</b> rutas de Mi Transporte del GTFS 2024 ya no aparecen; casi todas se dividieron en variantes. Solo 5 de ellas tienen trazo en el mapa (C05, C104, C117, C138, T09-O) y ahí se marcan con un aviso.</li>
+  <li><b>58</b> identificadores son nuevos. No podemos mostrarlos hasta que SETRAN publique el GTFS actual o la comunidad los mapee en OpenStreetMap.</li>
+</ul>
+<p>Lista completa: <a href="https://github.com/tocaltepetl/rutas-gdl/blob/main/datos/lineas-treep-mi-transporte.txt">datos/lineas-treep-mi-transporte.txt</a>.</p>
+
+<h2>Qué se ha pedido</h2>
+<p>Preparamos dos solicitudes de acceso a la información en la Plataforma Nacional de Transparencia.
+Puedes enviarlas tú también: entre más personas las pidan, más difícil es ignorarlas. <a href="solicitar.html">Cómo solicitarlas</a>.</p>
+<ol>
+  <li><b>A SETRAN</b> (Secretaría de Transporte): el GTFS vigente que entregó a Google, la dirección de los datos en tiempo real, el convenio con Ualabee y quién es dueño de esos datos, cuántas unidades transmiten su GPS y la licencia del GTFS de 2024.</li>
+  <li><b>A SITEUR</b> (Tren Eléctrico Urbano): el GTFS de Mi Tren, Mi Macro y alimentadoras, la documentación de la fuente de tiempo real de «Mi Ruta», si habrá un feed GTFS-Realtime público, y el contrato con el proveedor.</li>
+</ol>
+<p class="nota">Texto completo de ambas: <a href="https://github.com/tocaltepetl/rutas-gdl/blob/main/docs/solicitudes-transparencia.md">docs/solicitudes-transparencia.md</a>. Aquí publicaremos las respuestas.</p>
+
+<h2>Por qué importa</h2>
+<p>La información del transporte público es pública. Si solo vive en apps privadas, la ciudadanía, la academia y los medios no pueden revisar
+la cobertura, las frecuencias ni si el servicio se cumple. Por eso este sitio usa solo datos abiertos.</p>
+
+<footer>
+  Proyecto cívico no oficial. Mapa base © <a href="https://www.openstreetmap.org/copyright">colaboradores de OpenStreetMap</a>.
+  <a href="https://github.com/tocaltepetl/rutas-gdl">Código y datos</a>.
+  Contamos visitas con Cloudflare Web Analytics, sin cookies ni datos personales
+  (<a href="https://github.com/tocaltepetl/.github/blob/main/docs/privacidad.md">cómo cuidamos tu privacidad</a>).
+</footer>
+</main>
+<!-- Cloudflare Web Analytics: visitas sin cookies ni datos personales -->
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "05f1e13089164a0b824bb84ea67449e1"}'></script>
+</body>
+</html>
