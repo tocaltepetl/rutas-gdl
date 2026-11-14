@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Análisis de la red — Rutas GDL</title>
+<meta name="description" content="Cobertura a pie, frecuencias y corredores del transporte público de la zona metropolitana de Guadalajara, calculados con el GTFS abierto de SETRAN (2024).">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root { --bg:#fff; --fg:#1d1d1f; --mute:#666; --line:#ddd; --acc:#0b6bcb; --card:#f6f6f7; --warn:#b25e00; --warnbg:#fff4e5; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#151517; --fg:#eee; --mute:#aaa; --line:#333; --acc:#5aa6ff; --card:#1f1f22; --warn:#ffb454; --warnbg:#2b2113; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.5 system-ui, sans-serif; }
+  main { max-width:1000px; margin:0 auto; padding:16px 16px 40px; }
+  nav { font-size:14px; } a { color:var(--acc); }
+  h1 { font-size:26px; margin:12px 0 4px; } h2 { font-size:20px; margin:32px 0 8px; }
+  .sub { color:var(--mute); margin:0 0 12px; }
+  .aviso { background:var(--warnbg); border-left:4px solid var(--warn); padding:10px 14px; border-radius:6px; font-size:15px; }
+  .cifras { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin:16px 0; }
+  .cifras div { background:var(--card); border-radius:10px; padding:12px; }
+  .cifras b { display:block; font-size:26px; line-height:1.1; }
+  .cifras span { font-size:13px; color:var(--mute); }
+  #mapa { height:62dvh; min-height:360px; border-radius:10px; border:1px solid var(--line); }
+  .capas { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
+  .capas button { font:inherit; font-size:14px; padding:5px 12px; border-radius:99px; border:1px solid var(--line); background:none; color:var(--fg); cursor:pointer; }
+  .capas button[aria-pressed=true] { background:var(--acc); border-color:var(--acc); color:#fff; }
+  .leyenda { display:flex; flex-wrap:wrap; gap:4px 14px; font-size:13px; color:var(--mute); }
+  .leyenda i { display:inline-block; width:14px; height:14px; border-radius:3px; vertical-align:-2px; margin-right:4px; }
+  .barras { display:grid; grid-template-columns:auto 1fr auto; gap:6px 10px; align-items:center; font-size:14px; max-width:620px; }
+  .barras .b { height:18px; background:var(--acc); border-radius:3px; min-width:2px; }
+  .tabla { overflow-x:auto; max-height:520px; overflow-y:auto; border:1px solid var(--line); border-radius:8px; }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th, td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  th { position:sticky; top:0; background:var(--card); font-size:13px; color:var(--mute); }
+  td.n { text-align:right; font-variant-numeric:tabular-nums; }
+  .chip { font-weight:600; }
+  input[type=search] { font:inherit; padding:7px 10px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--fg); width:min(100%, 320px); margin:6px 0 10px; }
+  details { margin:10px 0; } summary { cursor:pointer; color:var(--acc); }
+  footer { margin-top:40px; font-size:13px; color:var(--mute); border-top:1px solid var(--line); padding-top:12px; }
+</style>
+</head>
+<body>
+<main>
+<nav><a href="./">← Mapa de rutas</a> · <a href="datos.html">Estado de los datos</a></nav>
+<h1>Análisis de la red</h1>
+<p class="sub">Qué tan cerca queda el camión, cada cuánto pasa y por dónde se amontonan las rutas, calculado solo con datos abiertos.</p>
+<p class="aviso"><b>Ojo: son datos de marzo de 2024.</b> Es el último GTFS que SETRAN publicó como dato abierto. Desde entonces hay rutas nuevas, divididas o
+con otro horario, así que las cifras describen la red de 2024, no la de hoy. <a href="datos.html">Por qué</a>.</p>
+
+<div class="cifras" id="cifras"></div>
+
+<h2>Mapa</h2>
+<div class="capas" role="group" aria-label="Capas del mapa">
+  <button data-capa="cobertura" aria-pressed="true">Cobertura a pie</button>
+  <button data-capa="corredores" aria-pressed="false">Corredores</button>
+</div>
+<div class="leyenda" id="leyenda"></div>
+<div id="mapa" role="region" aria-label="Mapa de análisis"></div>
+
+<h2>Cobertura a pie</h2>
+<p>Dividimos la ciudad en cuadros de 250 m y medimos qué tan lejos está la parada más cercana. Si está a más de 500 m (unos 6 o 7 minutos caminando),
+el cuadro queda <b>sin cobertura a pie</b>. También contamos cuántas rutas distintas paran a 500 m o menos.</p>
+<p id="txt-cob"></p>
+<details><summary>Limitaciones</summary>
+  <ul>
+    <li>Medimos <b>área, no personas</b>: un cuadro sin cobertura puede ser un parque industrial, un cerro o una colonia llena. Para saber cuánta gente
+      se queda lejos del camión hace falta población por manzana; el INEGI la publica (Censo 2020, «Principales resultados por AGEB y manzana urbana»),
+      pero aún no la integramos.</li>
+    <li>La distancia es en línea recta, no por calles: caminando real suele ser 20 a 40 % más.</li>
+    <li>El área de estudio son los cuadros a 2 km o menos de alguna parada; el porcentaje depende de ese recorte (con 1 km, baja a <span id="pct1"></span>).</li>
+    <li>Tener una parada cerca no dice cada cuánto pasa el camión.</li>
+  </ul>
+</details>
+
+<h2>Frecuencias</h2>
+<p>Cada cuánto pasa cada ruta entre semana, según el horario que SETRAN registró en el GTFS. «Hora pico» es a las 8 de la mañana.</p>
+<p id="txt-frec"></p>
+<h3>¿Cada cuánto pasan en hora pico?</h3>
+<div class="barras" id="barras" role="img" aria-label="Número de rutas según cada cuánto pasan en hora pico"></div>
+
+<h3>Rutas que pasan cada 20 minutos o más en hora pico</h3>
+<div class="tabla"><table id="t-lentas"></table></div>
+
+<h3>Todas las rutas</h3>
+<input type="search" id="filtro" placeholder="Filtrar: C01, Macro, Tonalá…" aria-label="Filtrar rutas">
+<div class="tabla"><table id="t-todas"></table></div>
+<p class="sub">«Nocturno» = tiene salidas después de las 23:00 o antes de las 5:00. Los horarios del GTFS son los programados; no sabemos si se cumplen
+(para eso hace falta el tiempo real, que no es público).</p>
+
+<h2>Corredores</h2>
+<p>Las calles por donde pasan más rutas a la vez. Cuadros de 150 m; cada ruta cuenta una vez aunque pase en los dos sentidos. En calles de un solo sentido
+que van en par (ida por una, regreso por otra), las rutas se reparten y el conteo queda más bajo.</p>
+<div class="tabla"><table id="t-cor"></table></div>
+
+<footer>
+  Datos: <a href="https://mobilitydatabase.org/feeds/gtfs/mdb-2366">GTFS de SETRAN Jalisco</a> (marzo de 2024), procesados con
+  <a href="https://github.com/tocaltepetl/rutas-gdl/blob/main/scripts/analisis.py">scripts/analisis.py</a>; descarga
+  <a href="data/analisis.json">analisis.json</a>, <a href="data/sin_cobertura.geojson">sin_cobertura.geojson</a> y
+  <a href="data/corredores.geojson">corredores.geojson</a>. Calculado el 14 de noviembre de 2026.
+  Mapa © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>. Proyecto cívico no oficial.
+  Contamos visitas con Cloudflare Web Analytics, sin cookies ni datos personales
+  (<a href="https://github.com/tocaltepetl/.github/blob/main/docs/privacidad.md">cómo cuidamos tu privacidad</a>).
+</footer>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const num = n => n.toLocaleString('es-MX');
+
+const mapa = L.map('mapa', { preferCanvas: true }).setView([20.66, -103.35], 11);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 18, attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(mapa);
+const lienzo = L.canvas({ padding: 0.3 });
+
+// Colores con buen contraste sobre el mapa claro; sin cobertura en rojo-violeta.
+const COB = [
+  [0, '#b2182b', 'Sin cobertura (más de 500 m)'],
+  [1, '#fdb863', '1 a 2 rutas'],
+  [3, '#a6dba0', '3 a 9 rutas'],
+  [10, '#1b7837', '10 o más rutas'],
+];
+const COR = [[15, '#fdae61', '15 a 19 rutas'], [20, '#f46d43', '20 a 24'], [25, '#d73027', '25 a 29'], [30, '#7f0000', '30 o más']];
+const color = (escala, v) => { let c = escala[0][1]; for (const [m, k] of escala) if (v >= m) c = k; return c; };
+
+const capas = {};
+let capaActiva = 'cobertura';
+
+function leyenda() {
+  const esc2 = capaActiva === 'cobertura' ? COB : COR;
+  $('#leyenda').innerHTML = esc2.map(([, c, t]) => `<span><i style="background:${c}"></i>${t}</span>`).join('');
+}
+
+function mostrar(nombre) {
+  capaActiva = nombre;
+  for (const [k, c] of Object.entries(capas)) (k === nombre ? c.addTo(mapa) : c.remove());
+  document.querySelectorAll('.capas button').forEach(b => b.setAttribute('aria-pressed', b.dataset.capa === nombre));
+  leyenda();
+}
+document.querySelectorAll('.capas button').forEach(b => b.onclick = () => mostrar(b.dataset.capa));
+
+function tabla(el, cab, filas) {
+  el.innerHTML = `<thead><tr>${cab.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>${filas.join('')}</tbody>`;
+}
+const filaRuta = f => `<tr><td class="chip">${esc(f.corto)}</td><td>${esc(f.agencia)}</td>
+  <td class="n">${f.pico_min ?? '—'}</td><td class="n">${f.min_min}</td><td class="n">${f.max_min}</td>
+  <td>${f.primera}</td><td>${f.ultima}</td><td>${f.nocturno ? 'Sí' : 'No'}</td>
+  <td>${esc(f.nombre)}${f.revisar ? ' <span title="Ya no aparece igual en listas recientes">⚠ pudo cambiar</span>' : ''}</td></tr>`;
+const CAB_RUTA = ['Ruta', 'Sistema', 'Pico (min)', 'Mín. (min)', 'Máx. (min)', 'Primera', 'Última', 'Nocturno', 'Nombre'];
+
+Promise.all([
+  fetch('data/analisis.json').then(r => r.json()),
+  fetch('data/corredores.geojson').then(r => r.json()),
+]).then(([a, cor]) => {
+  const r = a.resumen, c = r.cobertura, f = r.frecuencias;
+
+  $('#cifras').innerHTML = [
+    [c.pct_sin_cobertura + ' %', 'del área de estudio queda a más de 500 m de una parada'],
+    [f.pico_20_o_mas, 'rutas pasan cada 20 min o más en hora pico'],
+    [f.sin_nocturno, `de ${f.rutas} rutas no tienen servicio nocturno`],
+    [a.corredores[0].rutas, `rutas se enciman en el tramo más cargado (cerca de ${a.corredores[0].cerca_de})`],
+  ].map(([b, t]) => `<div><b>${b}</b><span>${esc(t)}</span></div>`).join('');
+
+  $('#txt-cob').textContent = `De ${num(c.celdas)} cuadros, ${num(c.sin_cobertura)} (${c.pct_sin_cobertura} %, unos ${num(c.km2_sin_cobertura)} km²) `
+    + `no tienen parada a 500 m o menos, y otros ${num(c.con_0_o_1_ruta)} solo tienen una ruta cerca.`;
+  $('#pct1').textContent = c.pct_sin_cobertura_1km + ' %';
+  $('#txt-frec').textContent = `De ${f.rutas} rutas con horario: ${f.pico_20_o_mas} pasan cada 20 minutos o más en hora pico `
+    + `(${f.pico_30_o_mas} cada media hora o más), ${f.terminan_antes_22} dejan de salir a las 22:00 o antes y ${f.sin_nocturno} no tienen servicio nocturno.`;
+
+  // Malla de cobertura: rectángulos en canvas a partir de la malla compacta.
+  const m = a.malla, g = L.layerGroup();
+  for (const [i, j, d, n] of m.celdas) {
+    const x = m.x0 + i * m.lado, y = m.y0 + j * m.lado;
+    const v = d > 500 ? 0 : Math.max(n, 1);
+    L.rectangle([[y / m.ky, x / m.kx], [(y + m.lado) / m.ky, (x + m.lado) / m.kx]], {
+      renderer: lienzo, stroke: false, fillColor: color(COB, v), fillOpacity: 0.45, interactive: false,
+    }).addTo(g);
+  }
+  capas.cobertura = g;
+
+  capas.corredores = L.geoJSON(cor, {
+    renderer: lienzo,
+    style: p => ({ stroke: false, fillColor: color(COR, p.properties.rutas), fillOpacity: 0.8 }),
+    onEachFeature: (ft, l) => l.bindPopup(`<b>${ft.properties.rutas} rutas</b> cerca de ${esc(ft.properties.cerca_de)}<br><small>${ft.properties.ids.map(esc).join(', ')}</small>`),
+  });
+  mostrar('cobertura');
+
+  // Histograma simple de intervalos en hora pico.
+  const tramos = [[0, 5, 'Menos de 5 min'], [5, 10, '5 a 9 min'], [10, 15, '10 a 14 min'], [15, 20, '15 a 19 min'], [20, 30, '20 a 29 min'], [30, 1e9, '30 min o más']];
+  const conteo = tramos.map(([a1, b1]) => a.frecuencias.filter(x => x.pico_min != null && x.pico_min >= a1 && x.pico_min < b1).length);
+  const max = Math.max(...conteo);
+  $('#barras').innerHTML = tramos.map(([, , t], k) =>
+    `<span>${t}</span><div class="b" style="width:${100 * conteo[k] / max}%"></div><b>${conteo[k]}</b>`).join('');
+
+  const lentas = a.frecuencias.filter(x => x.pico_min >= 20).sort((p, q) => q.pico_min - p.pico_min);
+  tabla($('#t-lentas'), CAB_RUTA, lentas.map(filaRuta));
+
+  const todas = [...a.frecuencias].sort((p, q) => p.corto.localeCompare(q.corto, 'es', { numeric: true }));
+  const pintar = () => {
+    const q = $('#filtro').value.trim().toLowerCase();
+    tabla($('#t-todas'), CAB_RUTA, todas.filter(x => !q || `${x.corto} ${x.nombre} ${x.agencia}`.toLowerCase().includes(q)).map(filaRuta));
+  };
+  $('#filtro').oninput = pintar; pintar();
+
+  tabla($('#t-cor'), ['#', 'Cerca de la parada', 'Rutas', 'Ver'], a.corredores.map((k, n) =>
+    `<tr><td class="n">${n + 1}</td><td>${esc(k.cerca_de)}</td><td class="n">${k.rutas}</td>
+     <td><a href="#mapa" data-ll="${k.lat},${k.lon}">en el mapa</a></td></tr>`));
+  document.querySelectorAll('[data-ll]').forEach(el => el.onclick = () => {
+    mostrar('corredores'); mapa.setView(el.dataset.ll.split(',').map(Number), 16);
+  });
+}).catch(e => { $('#cifras').textContent = 'No se pudieron cargar los datos del análisis.'; console.error(e); });
+</script>
+<!-- Cloudflare Web Analytics: visitas sin cookies ni datos personales -->
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "05f1e13089164a0b824bb84ea67449e1"}'></script>
+</body>
+</html>
