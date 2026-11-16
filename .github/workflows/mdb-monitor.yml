@@ -1,0 +1,127 @@
+# Revisa cada semana el GTFS de Guadalajara en la Mobility Database y el
+# GTFS vigente que SETRAN publica a través de Ualabee.
+# - Si cambia public/data/mdb.json o public/data/setran.json (sin contar
+#   fecha de revisión ni días), abre un PR «fix: …» (fix para que se publique
+#   la página).
+# - Si aparece un feed nuevo de Jalisco/Guadalajara o una versión nueva de
+#   mdb-2366, abre un issue (sin duplicar).
+# - Si el enlace de SETRAN falla, o su calendario vence en menos de 30 días
+#   o ya venció, abre un issue (sin duplicar).
+# Ver docs/decisiones.md («Vigilancia de la Mobility Database» y «Cambio de
+# fuente: GTFS de SETRAN publicado vía Ualabee»).
+name: Vigilar Mobility Database
+
+on:
+  schedule:
+    - cron: "17 14 * * 1" # lunes 8:17 en Guadalajara
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: mdb-monitor
+  cancel-in-progress: false
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RAMA: auto/mdb-estado
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Versión anterior
+        id: antes
+        run: echo "version=$(jq -r '.version.generacion // ""' public/data/mdb.json 2>/dev/null)" >> "$GITHUB_OUTPUT"
+
+      - name: Correr el script
+        id: mdb
+        run: python3 -I scripts/mdb_estado.py | tee -a "$GITHUB_OUTPUT"
+
+      # Lee el ZIP con peticiones Range (~70 KB, no los 52 MB). No guarda las
+      # URL de redirección porque llevan token. Si falla, setran_ok=no.
+      - name: Revisar el enlace de SETRAN
+        id: setran
+        run: python3 -I scripts/setran_estado.py | tee -a "$GITHUB_OUTPUT"
+
+      - name: ¿Cambió algo relevante?
+        id: cambio
+        run: |
+          igual() { # $1 archivo, $2 filtro jq
+            git show "HEAD:$1" | jq -S "$2" > /tmp/a.json 2>/dev/null \
+              && jq -S "$2" "$1" > /tmp/b.json && cmp -s /tmp/a.json /tmp/b.json
+          }
+          if igual public/data/mdb.json 'del(.revisado, .dias_desde_vencimiento)' \
+             && igual public/data/setran.json 'del(.revisado, .dias_para_vencer)'; then
+            echo "hay=no" >> "$GITHUB_OUTPUT"
+          else
+            echo "hay=si" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Abrir PR
+        if: steps.cambio.outputs.hay == 'si'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$RAMA"
+          git add public/data/mdb.json public/data/setran.json
+          git commit -m "fix: actualiza estado de la Mobility Database y de SETRAN"
+          git push --force origin "$RAMA"
+          if [ -z "$(gh pr list --head "$RAMA" --state open --json number -q '.[].number')" ]; then
+            gh pr create --head "$RAMA" --base main \
+              --title "fix: actualiza estado de la Mobility Database y de SETRAN" \
+              --body "Cambio detectado por \`scripts/mdb_estado.py\` o \`scripts/setran_estado.py\` (workflow semanal). Revisa el diff de \`public/data/mdb.json\` y \`public/data/setran.json\`."
+          fi
+
+      - name: Avisar feed o versión nueva
+        env:
+          NUEVOS: ${{ steps.mdb.outputs.feeds_nuevos }}
+          V_ANTES: ${{ steps.antes.outputs.version }}
+          V_AHORA: ${{ steps.mdb.outputs.version }}
+        run: |
+          avisar() { # $1 título (clave para no duplicar), $2 cuerpo
+            if [ -z "$(gh issue list --state open --search "\"$1\" in:title" --json number -q '.[].number')" ]; then
+              gh issue create --title "$1" --body "$2"
+            fi
+          }
+          if [ -n "$NUEVOS" ]; then
+            for id in ${NUEVOS//,/ }; do
+              avisar "Feed nuevo de Guadalajara/Jalisco en la Mobility Database: $id" \
+                "Apareció \`$id\` en https://files.mobilitydatabase.org/feeds_v2.csv. Revisa si sirve para el mapa: https://mobilitydatabase.org/feeds/gtfs/$id"
+            done
+          fi
+          if [ -n "$V_ANTES" ] && [ -n "$V_AHORA" ] && [ "$V_ANTES" != "$V_AHORA" ]; then
+            avisar "Versión nueva de mdb-2366 ($V_AHORA)" \
+              "Cambió https://files.mobilitydatabase.org/mdb-2366/latest.zip (generación $V_ANTES → $V_AHORA). Hay que regenerar \`public/data/\` (ver README, «Datos»)."
+          fi
+
+      - name: Avisar si el GTFS de SETRAN falla o está por vencer
+        env:
+          OK: ${{ steps.setran.outputs.setran_ok }}
+          FIN: ${{ steps.setran.outputs.setran_fin }}
+          DIAS: ${{ steps.setran.outputs.setran_dias }}
+          ERROR: ${{ steps.setran.outputs.setran_error }}
+        run: |
+          avisar() { # $1 título (clave para no duplicar), $2 cuerpo
+            if [ -z "$(gh issue list --state open --search "\"$1\" in:title" --json number -q '.[].number')" ]; then
+              gh issue create --title "$1" --body "$2"
+            fi
+          }
+          enlace="https://ualabee.com/api/v3/cities/35/gtfs-feeds/public"
+          if [ "$OK" != "si" ]; then
+            avisar "El enlace del GTFS de SETRAN falla" \
+              "\`scripts/setran_estado.py\` no pudo leer $enlace ($ERROR). El mapa usa ese feed: revisa si cambió el enlace (nota de SETRAN: https://setran.jalisco.gob.mx/prensa/notas-web/archivos-gtfs-del-transporte-publico)."
+          elif [ -z "$DIAS" ]; then
+            avisar "El GTFS de SETRAN no trae calendario" \
+              "No se encontraron fechas en calendar.txt ni calendar_dates.txt de $enlace."
+          elif [ "$DIAS" -lt 0 ]; then
+            avisar "El GTFS de SETRAN venció ($FIN)" \
+              "El calendario de $enlace terminó el $FIN. Revisa si SETRAN publicó otro y regenera \`public/data/\` (README, «Datos»)."
+          elif [ "$DIAS" -lt 30 ]; then
+            avisar "El GTFS de SETRAN vence pronto ($FIN)" \
+              "El calendario de $enlace termina el $FIN (en $DIAS días). Si no se renueva, el mapa mostrará un servicio vencido."
+          fi

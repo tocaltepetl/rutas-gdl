@@ -1,20 +1,35 @@
 # Rutas de camiones GDL
 
-> **English:** free, ad-free map of public transit routes in the Guadalajara
-> metropolitan area, built from the Jalisco government's open GTFS data. A
-> static page, no backend, no accounts. Contributions welcome — see
+> **English:** an unofficial watchdog of Guadalajara's public transit data.
+> Since Sept. 2026 SETRAN publishes a current GTFS feed (hosted by a private
+> vendor, Ualabee), but with no explicit open license, no official portal
+> listing and no public real-time data. This site shows what is still missing, helps people request the data via transparency
+> laws, and proves what can be built with open data alone. Contributions
+> welcome — see
 > [CONTRIBUTING](https://github.com/tocaltepetl/.github/blob/main/CONTRIBUTING.md)
 > (in Spanish; English is fine in issues and PRs).
 
-Observatorio **no oficial** de las rutas de transporte público de la zona
-metropolitana de Guadalajara (Mi Transporte, Mi Macro, Mi Tren, Si Tren y Mi
-Transporte Eléctrico): un mapa libre y sin anuncios, el estado de los datos
-abiertos y análisis de la red.
+**Desde el 30 de septiembre de 2026 SETRAN
+[publica el GTFS vigente](https://setran.jalisco.gob.mx/prensa/notas-web/archivos-gtfs-del-transporte-publico)
+de las rutas. Falta que sea dato abierto de verdad: licencia explícita,
+publicación en el portal oficial con enlace estable, y tiempo real público.**
 
-La información pública de transporte debería llegar a la ciudadanía sin
-depender de plataformas privadas. Este proyecto usa solo datos abiertos (GTFS
-oficial y OpenStreetMap) y busca que SETRAN y SITEUR publiquen los suyos,
-incluido el tiempo real. Ver [decisiones](docs/decisiones.md#propósito-2026-11-14).
+Este proyecto no oficial busca que la información de transporte público de la
+zona metropolitana de Guadalajara (Mi Transporte, Mi Macro, Mi Tren, Si Tren y
+Mi Transporte Eléctrico) sea de todos y no solo de las plataformas privadas:
+
+1. **Muestra qué falta**: qué datos son abiertos, cuáles están cerrados y qué
+   tan viejos son ([estado de los datos](https://rutasgdl.tocaltepetl.org/datos.html)).
+2. **Te ayuda a pedirlos**: una guía para solicitar por transparencia a SETRAN
+   y SITEUR la licencia, la publicación oficial y el tiempo real, más un registro público y anónimo de
+   folios ([pide los datos](https://rutasgdl.tocaltepetl.org/solicitar.html)).
+3. **Demuestra lo que se puede hacer con datos abiertos**: un mapa de la red
+   completa y análisis de cobertura y frecuencias, hecho con el GTFS que
+   publica SETRAN y OpenStreetMap.
+
+**Para quién:** periodistas, colectivos de movilidad, academia y cualquier
+persona que quiera exigir mejores datos. Para planear un viaje, Google Maps o
+Mi Ruta te sirven mejor. Ver [decisiones](docs/decisiones.md#propósito-2026-11-14).
 
 ## Qué muestra
 - Las rutas con su trazo y color oficial sobre OpenStreetMap.
@@ -24,7 +39,8 @@ incluido el tiempo real. Ver [decisiones](docs/decisiones.md#propósito-2026-11-
   sale del navegador.
 - Frecuencia aproximada en hora pico, según el GTFS.
 - [Pide los datos](https://rutasgdl.tocaltepetl.org/solicitar.html): guía para
-  pedir por transparencia a SETRAN y SITEUR sus datos (GTFS y tiempo real), y
+  pedir por transparencia a SETRAN y SITEUR lo que falta (licencia, portal
+  oficial, tiempo real, GTFS completo de SITEUR), y
   registro público y anónimo de folios (sin nombre ni correo; la IP no se
   guarda). Dato abierto en `/api/solicitudes.csv` y `/api/solicitudes`.
 
@@ -32,26 +48,36 @@ incluido el tiempo real. Ver [decisiones](docs/decisiones.md#propósito-2026-11-
   está cerrado, qué tan viejo es y qué se ha pedido por transparencia.
 - [Análisis](public/analisis.html) (`/analisis.html`): cobertura a pie (malla
   de 250 m), frecuencias por ruta y corredores con más rutas encimadas.
-- [Guía de mapeo](docs/mapeo.md) para completar en OpenStreetMap las 58 rutas
-  que faltan en los datos abiertos.
+- [Guía de mapeo](docs/mapeo.md) para mejorar las rutas en OpenStreetMap (el
+  único lugar donde son dato abierto con licencia).
+- Vigilancia semanal (`.github/workflows/mdb-monitor.yml`):
+  - del enlace de SETRAN (`scripts/setran_estado.py` → `public/data/setran.json`):
+    fecha, tamaño, archivos internos y fin del calendario, leyendo solo ~70 KB
+    del ZIP; abre un issue si falla o vence en menos de 30 días;
+  - del GTFS anterior en la Mobility Database (`scripts/mdb_estado.py` →
+    `public/data/mdb.json`) y de si aparece un feed nuevo de Jalisco.
+  Ambos se muestran en «Estado de los datos».
 - Conteo de visitas con Cloudflare Web Analytics (sin cookies ni datos
   personales). Ver la
   [política de privacidad común](https://github.com/tocaltepetl/.github/blob/main/docs/privacidad.md).
 
 ## Datos
-GTFS de SETRAN Jalisco publicado en
-[datos.jalisco.gob.mx](https://datos.jalisco.gob.mx/dataset/actualizacion-de-rutas-de-transporte-publico-colectivo-y-masivo-en-la-zona-metropolitana-de)
-(`gtfs_amg_20240312.zip`, marzo de 2024). Como el portal no respondía, se tomó
-la copia de la [Mobility Database (mdb-2366)](https://mobilitydatabase.org/feeds/gtfs/mdb-2366).
+GTFS que SETRAN Jalisco publica desde el 30-sep-2026
+([nota](https://setran.jalisco.gob.mx/prensa/notas-web/archivos-gtfs-del-transporte-publico)):
+`https://ualabee.com/api/v3/cities/35/gtfs-feeds/public` (redirige a un ZIP de
+~52 MB alojado por Ualabee). Al 2026-11-14: 401 rutas de 11 sistemas,
+calendario hasta el 2026-12-31, sin `feed_info.txt` ni licencia explícita.
 
-- 275 rutas en el GTFS; 247 tienen trazo y son las que aparecen en el mapa.
-- Son datos de 2024: algunas rutas pudieron cambiar. SETRAN tiene una versión
-  de 2026 en Google Maps que no ha publicado como datos abiertos.
+- Hasta noviembre de 2026 se usó el GTFS de marzo de 2024 de
+  [datos.jalisco.gob.mx](https://datos.jalisco.gob.mx/dataset/actualizacion-de-rutas-de-transporte-publico-colectivo-y-masivo-en-la-zona-metropolitana-de)
+  (`gtfs_amg_20240312.zip`), copia de la
+  [Mobility Database (mdb-2366)](https://mobilitydatabase.org/feeds/gtfs/mdb-2366).
+  Ver [decisiones](docs/decisiones.md).
 
 Para regenerar `public/data/`:
 
 ```sh
-curl -L -o /tmp/gtfs.zip https://files.mobilitydatabase.org/mdb-2366/latest.zip
+curl -L -o /tmp/gtfs.zip https://ualabee.com/api/v3/cities/35/gtfs-feeds/public
 unzip -o /tmp/gtfs.zip -d /tmp/gtfs
 python3 -I scripts/gtfs_a_geojson.py /tmp/gtfs public/data datos/lineas-treep-mi-transporte.txt
 python3 -I scripts/analisis.py /tmp/gtfs public/data   # analisis.json y GeoJSON del análisis
@@ -74,6 +100,23 @@ Con una ruta elegida, «Reportar un cambio en esta ruta» publica una nota
 `#rutasgdl` ([ver las abiertas](https://www.openstreetmap.org/api/0.6/notes/search?q=rutasgdl&closed=0)).
 Para probar sin crear notas reales: `?osm=dev` (servidor de pruebas de OSM).
 
+## Comparación con otras ciudades
+
+`public/data/comparativa.json` (sección «Otras ciudades sí publican» de
+`analisis.html`) sale del catálogo de [Mobility Database](https://mobilitydatabase.org/).
+Para regenerarlo (solo biblioteca estándar; tarda menos de un minuto):
+
+```sh
+python3 -I scripts/comparativa_mdb.py
+```
+
+Lee `feeds_v2.csv`, toma los feeds GTFS y GTFS-RT de México (por estado) y de
+las áreas metropolitanas de la lista `METROS` del script, y descarga en memoria
+el `latest.zip` de los GTFS no *deprecated* para leer su calendario. «Vigente»
+= la fecha máxima de servicio (`calendar.txt`, `calendar_dates.txt` o
+`feed_info.txt`) llega al día del corte o después. La fecha del corte queda en
+el campo `corte`.
+
 ## Uso local
 
 ```sh
@@ -93,8 +136,8 @@ Issues y PRs bienvenidos. Lee el
 y el [código de conducta](https://github.com/tocaltepetl/.github/blob/main/CODE_OF_CONDUCT.md).
 
 ## Licencia
-El código: [MIT](LICENSE). Los datos de rutas son de SETRAN Jalisco (licencia
-por confirmar en su portal); el mapa base es © colaboradores de OpenStreetMap.
+El código: [MIT](LICENSE). Los datos de rutas son de SETRAN Jalisco (publicados
+sin licencia explícita; la pedimos por transparencia); el mapa base es © colaboradores de OpenStreetMap.
 
 ## Publicación
 Sitio: **https://rutasgdl.tocaltepetl.org** (Cloudflare Workers: archivos

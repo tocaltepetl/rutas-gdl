@@ -29,6 +29,7 @@ OVERPASS = "https://overpass-api.de/api/interpreter"
 UA = "rutas-gdl/0.1"
 BBOX = "20.50,-103.55,20.80,-103.20"
 TOL = 0.00003  # igual que gtfs_a_geojson.py
+AGENCIAS_AMG = {"BUS", "MM", "MMA", "MMP", "MT", "ST", "ME"}  # igual que gtfs_a_geojson.py
 CONSULTA = f"""[out:json][timeout:240];
 relation["type"="route"]["route"~"^(bus|tram|light_rail|subway)$"]({BBOX});
 out body geom meta;"""
@@ -38,12 +39,19 @@ NO_TRAZO = {"platform", "stop", "route_marker"}  # roles de ways que no son el r
 
 def id_gtfs(ref, ids):
     """route_id del GTFS que corresponde a un `ref` de OSM, o None.
-    OSM usa TL-1 (tren ligero) y ST-L1 (SiTren) donde el GTFS usa MT_L1 y ST_L1."""
+    El GTFS 2026 ya usa TL-1 como nombre corto del tren ligero (MT_L1); se
+    conserva la equivalencia vieja TL-/ST- -> MT_L/ST_L por si OSM cambia.
+    Si varios route_id comparten nombre corto (T01 en Mi Macro Periférico y
+    Aeropuerto), se toma el primero: basta para saber que la ruta ya está."""
     if ref in ids:
         return ref
-    por_corto = [i for i, r in ids.items() if r["route_short_name"] == ref]
-    if len(por_corto) == 1:
+    por_corto = sorted(i for i, r in ids.items() if r["route_short_name"].strip() == ref)
+    if por_corto:
         return por_corto[0]
+    # MC-L1 en OSM = MC-L1E (exprés) y MC-L1P (paradas) en el GTFS 2026
+    variantes = sorted(i for i in ids if re.fullmatch(re.escape(ref) + "[EP]", i))
+    if variantes:
+        return variantes[0]
     m = re.fullmatch(r"(TL|ST)-L?(\d+[A-Z]?)", ref)
     if m:
         cand = ("MT_L" if m[1] == "TL" else "ST_L") + m[2]
@@ -127,7 +135,8 @@ def main(gtfs, salida, cache=None):
     raiz = Path(__file__).resolve().parent.parent
     agencias = {a["agency_name"] for a in leer(gtfs, "agency.txt")}
     ag_id = {a["agency_id"]: a["agency_name"] for a in leer(gtfs, "agency.txt")}
-    gtfs_rutas = {r["route_id"]: r for r in leer(gtfs, "routes.txt")}
+    gtfs_rutas = {r["route_id"]: r for r in leer(gtfs, "routes.txt") if r["agency_id"] in AGENCIAS_AMG}
+    agencias = {ag_id[r["agency_id"]] for r in gtfs_rutas.values()}
     con_trazo = {f["properties"]["id"] for f in
                  json.loads((salida / "rutas.geojson").read_text(encoding="utf-8"))["features"]}
     sin_trazo = set(gtfs_rutas) - con_trazo
@@ -174,8 +183,8 @@ def main(gtfs, salida, cache=None):
             color = t.get("colour", "")
             feats.append({"type": "Feature", "geometry": geom, "properties": {
                 "id": gid or ref,
-                "corto": g["route_short_name"] if g else ref,
-                "nombre": g["route_long_name"] if g else nombre,
+                "corto": (g["route_short_name"].strip() or gid) if g else ref,
+                "nombre": (g["route_long_name"].strip() or g.get("route_desc", "").strip()) if g else nombre,
                 "agencia": ag_id.get(g["agency_id"], ag) if g else ag,
                 "tipo": int(g["route_type"]) if g else TIPOS.get(t.get("route"), 3),
                 "color": ("#" + g["route_color"]) if g and g.get("route_color") else
@@ -212,8 +221,8 @@ def main(gtfs, salida, cache=None):
         return f"| {ref} | {nom} | {ids} | {f1} | {antig(f1)} |"
 
     con_ref = {id_gtfs(r, gtfs_rutas) for r in por_ref}
-    sin_osm = sorted(gtfs_rutas[i]["route_short_name"] for i in sin_trazo - con_ref)
-    osm_sin_geom = sorted(gtfs_rutas[i]["route_short_name"] for i in sin_trazo & con_ref
+    sin_osm = sorted(gtfs_rutas[i]["route_short_name"].strip() or i for i in sin_trazo - con_ref)
+    osm_sin_geom = sorted(gtfs_rutas[i]["route_short_name"].strip() or i for i in sin_trazo & con_ref
                           if i not in {f["properties"]["id"] for f in feats})
     ultimas = sorted(e.get("timestamp", "")[:4] for v in por_ref.values() for e, _ in v)
     por_anio = defaultdict(int)

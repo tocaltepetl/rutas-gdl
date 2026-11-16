@@ -1,0 +1,53 @@
+{
+  "feed": "mdb-2366",
+  "pagina": "https://mobilitydatabase.org/feeds/gtfs/mdb-2366",
+  "estado_mdb": "inactive",
+  "redirige_a": null,
+  "proveedor": "Mi Transporte, Mi Transporte Eléctrico, Mi Macro, Mi Tren, SiTren",
+  "url_origen": "https://datos.jalisco.gob.mx/sites/default/files/gtfs_amg_20240312.zip",
+  "portal_responde": false,
+  "copia_mdb": "https://files.mobilitydatabase.org/mdb-2366/latest.zip",
+  "version": {
+    "fecha": "2025-02-24",
+    "md5": "sk0StRv/iKr5k0NyQX4OdA==",
+    "generacion": "1740424976008184",
+    "bytes": 2542046
+  },
+  "calendario": {
+    "inicio": "2024-01-01",
+    "fin": "2024-12-31"
+  },
+  "dias_desde_vencimiento": 683,
+  "validador": null,
+  "feeds_gdl": [
+    {
+      "id": "mdb-1925",
+      "tipo": "gtfs",
+      "nombre": "Transporte Masivo AMG",
+      "proveedor": "Secretaría de Movilidad del Estado de Jalisco",
+      "estado": "deprecated"
+    },
+    {
+      "id": "mdb-1926",
+      "tipo": "gtfs",
+      "nombre": "Rutas de autobus urbano AMG",
+      "proveedor": "Secretaría de Movilidad del Estado de Jalisco",
+      "estado": "deprecated"
+    },
+    {
+      "id": "mdb-2034",
+      "tipo": "gtfs",
+      "nombre": "",
+      "proveedor": "Direccion General de Transporte Publico de Puerto Vallarta",
+      "estado": "inactive"
+    },
+    {
+      "id": "mdb-2366",
+      "tipo": "gtfs",
+      "nombre": "Public Transport Routes in the Metropolitan Area of ​​Guadalajara",
+      "proveedor": "Mi Transporte, Mi Transporte Eléctrico, Mi Macro, Mi Tren, SiTren",
+      "estado": "inactive"
+    }
+  ],
+  "revisado": "2026-11-14"
+}

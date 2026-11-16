@@ -1,5 +1,6 @@
 # Identificadores de líneas de Mi Transporte listados en https://treep.app/index/agency/35/BUS (consultado 2026-11-14).
 # Solo se usan para marcar rutas del GTFS 2024 que pudieron cambiar. Ver docs/decisiones.md.
+# Histórico: desde 2026-11-14 el mapa usa el GTFS vigente de SETRAN y ya no depende de esta lista.
 C01
 C02
 C03

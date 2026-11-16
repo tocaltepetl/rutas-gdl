@@ -10,53 +10,59 @@ estado Jalisco, sujeto obligado **Secretaría de Transporte del Estado de Jalisc
 ## Texto para pegar
 
 Con fundamento en el artículo 6.º de la Constitución Política de los Estados
-Unidos Mexicanos y en la Ley de Transparencia y Acceso a la Información Pública
-del Estado de Jalisco y sus Municipios, solicito la siguiente información:
+Unidos Mexicanos y en la Ley de Transparencia y Acceso a la Información
+Pública del Estado de Jalisco y sus Municipios, solicito la siguiente
+información:
 
-1. **GTFS estático vigente.** Los archivos GTFS (Especificación General de
-   Feeds de Transporte Público) más recientes de las rutas de transporte
-   público de la Zona Metropolitana de Guadalajara, incluidos los que la
-   Secretaría entregó a Google para la publicación de 275 rutas en Google Maps
-   anunciada en julio de 2026. Solicito el archivo .zip tal como se generó.
+1. **Licencia de los archivos GTFS publicados.** La licencia o condiciones de
+   uso de los archivos GTFS (Especificación General de Feeds de Transporte
+   Público) que la Secretaría anunció el 30 de septiembre de 2026 en la nota
+   «Archivos GTFS del transporte público»
+   (https://setran.jalisco.gob.mx/prensa/notas-web/archivos-gtfs-del-transporte-publico),
+   que se descargan en
+   https://ualabee.com/api/v3/cities/35/gtfs-feeds/public. Si no tienen una
+   licencia definida, si está previsto publicarlos con una licencia abierta y
+   en qué fecha. Solicito también la licencia del conjunto «Actualización de
+   rutas de transporte público colectivo y masivo en la Zona Metropolitana de
+   Guadalajara» (archivo `gtfs_amg_20240312.zip`) de datos.jalisco.gob.mx.
 
-2. **Datos en tiempo real.** La dirección (URL) de los feeds GTFS-Realtime
+2. **Publicación en el portal oficial.** Si la Secretaría tiene previsto
+   publicar esos archivos en datos.jalisco.gob.mx o en otra dirección estable
+   bajo un dominio del Gobierno de Jalisco, con metadatos (archivo
+   `feed_info.txt`: quién lo publica, versión, vigencia y contacto), y en qué
+   fecha. Asimismo, quién genera los archivos, con qué frecuencia se
+   actualizan y qué rutas o sistemas incluyen.
+
+3. **Datos en tiempo real.** La dirección (URL) de los feeds GTFS-Realtime
    (Vehicle Positions, Trip Updates y Service Alerts) de las rutas que ya
    cuentan con localización GPS, y las condiciones para acceder a ellos. Si no
    existe una dirección pública, solicito saber a qué personas físicas o
-   morales se les ha dado acceso y bajo qué condiciones.
+   morales se les ha dado acceso, bajo qué condiciones, y si está previsto
+   publicarlos como datos abiertos.
 
-3. **Convenio con Ualabee.** Copia en versión pública del convenio, contrato o
+4. **Convenio con Ualabee.** Copia en versión pública del convenio, contrato o
    instrumento jurídico celebrado con Ualabee (o la razón social que
-   corresponda) para la digitalización de rutas y la localización en tiempo
-   real, con sus anexos técnicos, monto, vigencia y las cláusulas sobre
-   propiedad, licencia y uso de los datos generados.
+   corresponda) para la digitalización de rutas, la localización en tiempo
+   real y el alojamiento y la publicación de los archivos GTFS, con sus anexos
+   técnicos, monto, vigencia y las cláusulas sobre propiedad, licencia y uso
+   de los datos generados.
 
-4. **Propiedad y apertura de los datos.** Documento que indique quién es
-   titular de los datos de rutas, paradas, horarios y posiciones GPS generados
-   en ese proyecto, y si la Secretaría tiene previsto publicarlos como datos
-   abiertos en datos.jalisco.gob.mx. En su caso, la fecha prevista.
+5. **Propiedad de los datos.** Documento que indique quién es titular de los
+   datos de rutas, paradas, horarios y posiciones GPS generados en ese
+   proyecto, y qué pasaría con su publicación si el convenio con el proveedor
+   termina.
 
-5. **Cobertura del GPS.** Relación de rutas y número de unidades que a la
+6. **Cobertura del GPS.** Relación de rutas y número de unidades que a la
    fecha de esta solicitud transmiten su ubicación en tiempo real.
 
-6. **Licencia del GTFS publicado.** La licencia de uso del conjunto
-   «Actualización de rutas de transporte público colectivo y masivo en la Zona
-   Metropolitana de Guadalajara» publicado en datos.jalisco.gob.mx
-   (archivo `gtfs_amg_20240312.zip`), y la dirección vigente del portal, que
-   el 14 de noviembre de 2026 no estaba disponible.
+Cabe señalar que la Secretaría ya difunde los archivos del punto 1 a través de
+un tercero; darles una licencia abierta y publicarlos en el portal oficial no
+implica generar información nueva.
 
-Cabe señalar que la información del punto 1 ya está a disposición del
-público a través de terceros: el sitio https://treep.app/index/agency/35/BUS
-muestra 275 líneas de Mi Transporte, con identificadores, recorridos y
-paradas que coinciden con el formato del GTFS de la Secretaría y que incluyen
-rutas ausentes en la versión de 2024 publicada en datos.jalisco.gob.mx. Al
-haberse compartido con particulares que la difunden, no hay razón para no
-publicarla como dato abierto.
-
-Para los puntos 1, 2, 5 y 6 solicito la información en formato abierto y
-legible por máquina, conforme a los principios de datos abiertos que
-establece la ley. Si alguna parte se considera reservada o confidencial,
-solicito la versión pública del resto y la prueba de daño correspondiente.
+Para los puntos 1, 2, 3 y 6 solicito la información en formato abierto y
+legible por máquina, conforme a los principios de datos abiertos que establece
+la ley. Si alguna parte se considera reservada o confidencial, solicito la
+versión pública del resto y la prueba de daño correspondiente.
 
 ---
 
@@ -71,7 +77,9 @@ del Estado de Jalisco y sus Municipios, solicito:
 
 1. Los archivos GTFS (estáticos) de las rutas y líneas que opera o supervisa
    SITEUR (Mi Tren, Mi Macro Calzada, Mi Macro Periférico, Si Tren,
-   alimentadoras y demás), en su versión más reciente.
+   alimentadoras y demás), en su versión más reciente, con sus horarios y
+   paradas completos, incluidas las rutas que no figuren en los archivos GTFS
+   que la Secretaría de Transporte publica desde septiembre de 2026.
 2. La documentación técnica de la fuente de posiciones en tiempo real que
    alimenta la aplicación «Mi Ruta» (miruta.siteur.gob.mx): formato, frecuencia
    de actualización y rutas cubiertas.
@@ -95,7 +103,13 @@ resto y la prueba de daño correspondiente.
 - Si la respuesta es negativa o incompleta, procede el recurso de revisión
   ante el órgano garante de Jalisco (era el ITEI; con la reforma de 2025 que
   extinguió los órganos autónomos de transparencia pudo cambiar: verificar).
-- Los puntos 1 y 2 son los que desbloquean el proyecto; los demás sirven para
-  argumentar la apertura si se niegan.
-- Si llega el GTFS: actualizar `public/data/` con `scripts/gtfs_a_geojson.py`
-  y anotarlo en `docs/decisiones.md`.
+- Desde el 2026-11-14 la solicitud a SETRAN ya no pide el GTFS estático: la
+  Secretaría lo publica desde el 30 de septiembre de 2026 vía Ualabee y el
+  mapa lo usa. Ahora pide lo que falta para que sea dato abierto: licencia,
+  publicación en el portal oficial con enlace estable y metadatos, tiempo
+  real, y claridad sobre el convenio y la titularidad de los datos. La
+  versión anterior está en el historial de git.
+- Los puntos 1 a 3 son los prioritarios; los demás sirven para argumentar la
+  apertura si se niegan.
+- Si llega una licencia, un enlace oficial o un feed GTFS-Realtime: anotarlo
+  en `docs/decisiones.md` y en `public/datos.html`.
