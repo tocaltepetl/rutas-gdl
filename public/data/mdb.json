@@ -17,7 +17,7 @@
     "inicio": "2024-01-01",
     "fin": "2024-12-31"
   },
-  "dias_desde_vencimiento": 683,
+  "dias_desde_vencimiento": 685,
   "validador": null,
   "feeds_gdl": [
     {
@@ -49,5 +49,5 @@
       "estado": "inactive"
     }
   ],
-  "revisado": "2026-11-14"
+  "revisado": "2026-11-16"
 }

@@ -7,66 +7,66 @@
   "error": null,
   "host_final": "firebasestorage.googleapis.com",
   "version": {
-    "fecha": "2026-11-13",
-    "md5": "jX7dWuNsJPXQdqd/qdh9tQ==",
-    "generacion": "1794576241345128",
-    "bytes": 52694750
+    "fecha": "2026-11-16",
+    "md5": "8sugAOeEoOTjGuAnaQQ2eg==",
+    "generacion": "1794830990408498",
+    "bytes": 52699793
   },
   "descargado_bytes": 66268,
   "archivos": [
     {
       "nombre": "agency.txt",
-      "fecha": "2026-11-13",
+      "fecha": "2026-11-16",
       "bytes": 1059
     },
     {
       "nombre": "calendar.txt",
-      "fecha": "2026-11-13",
+      "fecha": "2026-11-16",
       "bytes": 483
     },
     {
       "nombre": "calendar_dates.txt",
-      "fecha": "2026-11-13",
+      "fecha": "2026-11-16",
       "bytes": 409
     },
     {
       "nombre": "fare_attributes.txt",
-      "fecha": "2026-11-13",
+      "fecha": "2026-11-16",
       "bytes": 280
     },
     {
       "nombre": "fare_rules.txt",
-      "fecha": "2026-11-13",
+      "fecha": "2026-11-16",
       "bytes": 1260
     },
     {
       "nombre": "frequencies.txt",
-      "fecha": "2026-11-13",
+      "fecha": "2026-11-16",
       "bytes": 763
     },
     {
       "nombre": "routes.txt",
-      "fecha": "2026-11-13",
+      "fecha": "2026-11-16",
       "bytes": 27768
     },
     {
       "nombre": "shapes.txt",
-      "fecha": "2026-11-13",
-      "bytes": 8626491
+      "fecha": "2026-11-16",
+      "bytes": 8643583
     },
     {
       "nombre": "stop_times.txt",
-      "fecha": "2026-11-13",
-      "bytes": 358062506
+      "fecha": "2026-11-16",
+      "bytes": 358064833
     },
     {
       "nombre": "stops.txt",
-      "fecha": "2026-11-13",
+      "fecha": "2026-11-16",
       "bytes": 925165
     },
     {
       "nombre": "trips.txt",
-      "fecha": "2026-11-13",
+      "fecha": "2026-11-16",
       "bytes": 7340326
     }
   ],
@@ -75,6 +75,6 @@
     "inicio": "2026-05-01",
     "fin": "2026-12-31"
   },
-  "dias_para_vencer": 47,
-  "revisado": "2026-11-14"
+  "dias_para_vencer": 45,
+  "revisado": "2026-11-16"
 }
