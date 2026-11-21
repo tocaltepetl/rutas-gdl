@@ -1,7 +1,11 @@
 # Solicitudes de acceso a la información — SETRAN y SITEUR
 
 **Dónde:** Plataforma Nacional de Transparencia (https://www.plataformadetransparencia.org.mx),
-estado Jalisco, sujeto obligado **Secretaría de Transporte del Estado de Jalisco**.
+estado Jalisco, sujeto obligado **Coordinación General Estratégica de Gestión del
+Territorio (Medio Ambiente, Desarrollo Territorial, Infraestructura, Obra Pública,
+Transporte, Gestión Integral del Agua)**. La Secretaría de Transporte no figura
+como sujeto obligado propio en la PNT: sus solicitudes las atiende esa
+coordinación (comprobado el 2026-11-20), por eso el texto nombra a la Secretaría.
 **Modalidad de entrega:** electrónica, por la plataforma o enlace de descarga.
 **Formato:** archivos digitales en su formato original (no escaneos ni PDF de tablas).
 
@@ -11,8 +15,9 @@ estado Jalisco, sujeto obligado **Secretaría de Transporte del Estado de Jalisc
 
 Con fundamento en el artículo 6.º de la Constitución Política de los Estados
 Unidos Mexicanos y en la Ley de Transparencia y Acceso a la Información
-Pública del Estado de Jalisco y sus Municipios, solicito la siguiente
-información:
+Pública del Estado de Jalisco y sus Municipios, solicito a la Secretaría de
+Transporte del Estado de Jalisco (SETRAN), dependencia de la Coordinación
+General Estratégica de Gestión del Territorio, la siguiente información:
 
 1. **Licencia de los archivos GTFS publicados.** La licencia o condiciones de
    uso de los archivos GTFS (Especificación General de Feeds de Transporte
@@ -68,7 +73,7 @@ versión pública del resto y la prueba de daño correspondiente.
 
 ## Segunda solicitud: SITEUR
 
-**Sujeto obligado:** Sistema de Tren Eléctrico Urbano (SITEUR). Misma
+**Sujeto obligado:** Sistema de Tren Eléctrico Urbano (así aparece en la PNT, sin «SITEUR»). Misma
 plataforma, modalidad y formato.
 
 Con fundamento en el artículo 6.º de la Constitución Política de los Estados
