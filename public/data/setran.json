@@ -7,67 +7,67 @@
   "error": null,
   "host_final": "firebasestorage.googleapis.com",
   "version": {
-    "fecha": "2026-11-16",
-    "md5": "8sugAOeEoOTjGuAnaQQ2eg==",
-    "generacion": "1794830990408498",
-    "bytes": 52699793
+    "fecha": "2026-11-17",
+    "md5": "alXC1p/DyUqCPbBCo8c7eQ==",
+    "generacion": "1794914410251764",
+    "bytes": 52714921
   },
   "descargado_bytes": 66268,
   "archivos": [
     {
       "nombre": "agency.txt",
-      "fecha": "2026-11-16",
-      "bytes": 1059
+      "fecha": "2026-11-17",
+      "bytes": 1148
     },
     {
       "nombre": "calendar.txt",
-      "fecha": "2026-11-16",
+      "fecha": "2026-11-17",
       "bytes": 483
     },
     {
       "nombre": "calendar_dates.txt",
-      "fecha": "2026-11-16",
-      "bytes": 409
+      "fecha": "2026-11-17",
+      "bytes": 381
     },
     {
       "nombre": "fare_attributes.txt",
-      "fecha": "2026-11-16",
-      "bytes": 280
+      "fecha": "2026-11-17",
+      "bytes": 303
     },
     {
       "nombre": "fare_rules.txt",
-      "fecha": "2026-11-16",
-      "bytes": 1260
+      "fecha": "2026-11-17",
+      "bytes": 1300
     },
     {
       "nombre": "frequencies.txt",
-      "fecha": "2026-11-16",
+      "fecha": "2026-11-17",
       "bytes": 763
     },
     {
       "nombre": "routes.txt",
-      "fecha": "2026-11-16",
-      "bytes": 27768
+      "fecha": "2026-11-17",
+      "bytes": 27894
     },
     {
       "nombre": "shapes.txt",
-      "fecha": "2026-11-16",
-      "bytes": 8643583
+      "fecha": "2026-11-17",
+      "bytes": 8665733
     },
     {
       "nombre": "stop_times.txt",
-      "fecha": "2026-11-16",
-      "bytes": 358064833
+      "fecha": "2026-11-17",
+      "bytes": 358142528
     },
     {
       "nombre": "stops.txt",
-      "fecha": "2026-11-16",
-      "bytes": 925165
+      "fecha": "2026-11-17",
+      "bytes": 928881
     },
     {
       "nombre": "trips.txt",
-      "fecha": "2026-11-16",
-      "bytes": 7340326
+      "fecha": "2026-11-17",
+      "bytes": 7347212
     }
   ],
   "feed_info": false,
@@ -75,6 +75,6 @@
     "inicio": "2026-05-01",
     "fin": "2026-12-31"
   },
-  "dias_para_vencer": 45,
-  "revisado": "2026-11-16"
+  "dias_para_vencer": 38,
+  "revisado": "2026-11-23"
 }

@@ -1,8 +1,8 @@
 {
   "feed": "mdb-2366",
   "pagina": "https://mobilitydatabase.org/feeds/gtfs/mdb-2366",
-  "estado_mdb": "inactive",
-  "redirige_a": null,
+  "estado_mdb": "deprecated",
+  "redirige_a": "mdb-3632",
   "proveedor": "Mi Transporte, Mi Transporte Eléctrico, Mi Macro, Mi Tren, SiTren",
   "url_origen": "https://datos.jalisco.gob.mx/sites/default/files/gtfs_amg_20240312.zip",
   "portal_responde": false,
@@ -17,9 +17,16 @@
     "inicio": "2024-01-01",
     "fin": "2024-12-31"
   },
-  "dias_desde_vencimiento": 685,
+  "dias_desde_vencimiento": 692,
   "validador": null,
   "feeds_gdl": [
+    {
+      "id": "gbfs-mibici_guadalajara",
+      "tipo": "gbfs",
+      "nombre": "",
+      "proveedor": "Mibici Guadalajara",
+      "estado": "active"
+    },
     {
       "id": "mdb-1925",
       "tipo": "gtfs",
@@ -44,10 +51,17 @@
     {
       "id": "mdb-2366",
       "tipo": "gtfs",
-      "nombre": "Public Transport Routes in the Metropolitan Area of ​​Guadalajara",
+      "nombre": "Public Transport Routes in the Metropolitan Area of Guadalajara",
       "proveedor": "Mi Transporte, Mi Transporte Eléctrico, Mi Macro, Mi Tren, SiTren",
-      "estado": "inactive"
+      "estado": "deprecated"
+    },
+    {
+      "id": "mdb-3632",
+      "tipo": "gtfs",
+      "nombre": "Public transport of Jalisco (Mi Transporte, Mi Macro, Mi Tren, SiTren and others)",
+      "proveedor": "Secretaría de Transporte del Estado de Jalisco (SETRAN)",
+      "estado": "active"
     }
   ],
-  "revisado": "2026-11-16"
+  "revisado": "2026-11-23"
 }
